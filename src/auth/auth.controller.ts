@@ -1,11 +1,11 @@
-import { Body, Controller, Get, Post,  Res, HttpStatus} from '@nestjs/common';
+import { Body, Controller, HttpStatus, Post, Res } from '@nestjs/common';
 import { SignUpDto } from 'src/dto/SignUpDto';
 import { BasicUtils } from 'src/utils/BasicUtils';
 import { Constants } from 'src/utils/Constants';
-import { json } from 'stream/consumers';
 
-@Controller('login')
-export class LoginController {
+@Controller('auth')
+export class AuthController {
+
     @Post('/signUp')
     signUp(@Body() signUpDto:SignUpDto, @Res() response) {
         let responseData = {
@@ -36,4 +36,6 @@ export class LoginController {
             .send(responseData)
 
     }
+
+
 }
