@@ -1,5 +1,4 @@
-import { Body, Controller, HttpStatus, Post, Res } from '@nestjs/common';
-import { SignUpDto } from 'src/dto/SignUpDto';
+import { Body, Controller, HttpStatus, Post, Req, Res } from '@nestjs/common';
 import { BasicUtils } from 'src/utils/BasicUtils';
 import { Constants } from 'src/utils/Constants';
 import { AuthService } from './auth.service';
@@ -10,42 +9,47 @@ export class AuthController {
     constructor(private authService:AuthService){}
 
     @Post('/signUp')
-    signUp(@Body() signUpDto:SignUpDto, @Res() response) {
+    async signUp(@Req() req, @Res() res) {
         let responseData = {
             message:Constants.SOMETHING_WENT_WRONG,
         }
-        console.log(""+JSON.stringify(signUpDto));
+        //console.log(""+JSON.stringify(req)); y do not wokr circular reference
+        console.log(req.body);
         
-        let requiredParametersCheck:any = BasicUtils.requiredParametersCheck(signUpDto, ["phoneNumber", "password"])
-        if(requiredParametersCheck["requiredParametersCheck"]){
+        let requiredParametersCheck: any = BasicUtils.requiredParametersCheck(req.body, ["phoneNumber", "password"])
+        if (requiredParametersCheck["requiredParametersCheck"]) {
 
-            let userCreated = this.authService.createUser(signUpDto)
-            if(userCreated)
-            {
+            let isUserCreated = await this.authService.createUser(req.body)
+            if (isUserCreated && isUserCreated["userCreated"]) {
                 responseData.message = Constants.USER_CREATED
-                return response
-                .status(HttpStatus.OK)
-                .send(responseData)
+                return res
+                    .status(HttpStatus.OK)
+                    .send(responseData)
             }
-            else{
-                return response
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .send(responseData)
+            else {
+                if(isUserCreated && isUserCreated["error"]){
+                    responseData.message = isUserCreated["error"]
+                    return res
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .send(responseData)
+                }
+                return res
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .send(responseData)
             }
-            
         }
         else
         {
             if(requiredParametersCheck["errors"]!=null)
             {
                 responseData.message = ""+requiredParametersCheck["errors"]
-                return response
+                return res
                 .status(HttpStatus.BAD_REQUEST)
                 .send(responseData)
                 
             }
         }
-        return response
+        return res
             .status(HttpStatus.INTERNAL_SERVER_ERROR)
             .send(responseData)
 
