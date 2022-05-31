@@ -1,3 +1,4 @@
+import * as bcrypt from 'bcrypt';
 export class BasicUtils{
     static requiredParametersCheck(requestObj, parametersArray) {
 
@@ -16,5 +17,18 @@ export class BasicUtils{
             requiredParametersCheck,
             errors
         };
+    }
+
+    static async encodePassword(userPassword: string){
+        const SALT = bcrypt.genSaltSync();
+        return bcrypt.hash(userPassword, SALT)
+    }
+
+    static validatePassword(userPassword: string, hashedPassword: string){
+        return bcrypt.compareSync(userPassword, hashedPassword)
+    }
+
+    static generateErrorResponse(){
+        
     }
 }

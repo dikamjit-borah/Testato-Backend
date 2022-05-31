@@ -1,6 +1,6 @@
 import { isNotEmpty, IsNotEmpty } from "class-validator"
 
-export class SignUpDto{
+export class SignInDto{
     @IsNotEmpty()
     phoneNumber:number
 

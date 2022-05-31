@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { SignInDto } from 'src/dto/SignInDto';
 import { SignUpDto } from 'src/dto/SignUpDto';
 import { UserEntity } from 'src/entities/user.entity';
+import { BasicUtils } from 'src/utils/BasicUtils';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -10,19 +12,50 @@ export class AuthService {
     constructor(@InjectRepository(UserEntity) private userRepo: Repository<UserEntity>) { }
 
     async createUser(signUpDto:SignUpDto) {
-        let userCreated;
+        let userCreated = false;
         try {
-            userCreated = await this.userRepo.save(signUpDto)
-            console.log("User created: "+userCreated);
+            const hashedPassword = await BasicUtils.encodePassword(signUpDto.password)
+            console.log("hashed password: \n"+hashedPassword);
+            
+            const newUser = this.userRepo.create({...signUpDto, password:""+hashedPassword});
+            console.log("new user created: \n"+ JSON.stringify(newUser));
+            return {
+                userCreated: true,
+                newUser: this.userRepo.save(newUser)
+            }
             
         } catch (error) {
             console.log(error);
-            return {userCreated, error:""+error}
+            return {
+                userCreated, 
+                error:""+error
+            }
             
         }
-                
-        return {userCreated}
-        
+    }
+
+    async findUser(signInDto:SignInDto){
+        let userFound = false;
+        try {
+            const user = await this.userRepo.findOneBy({phoneNumber:signInDto.phoneNumber})
+            if(user)
+            return {
+                userFound: true,
+                user
+            }
+            return {
+                userFound,
+                user
+            }
+            
+            
+        } catch (error) {
+            return{
+                userFound,
+                error
+            }
+        }
+
     }
 
 }

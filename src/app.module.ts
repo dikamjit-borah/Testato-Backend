@@ -24,7 +24,8 @@ import { AuthModule } from './modules/auth/auth.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule implements NestModule{
+export class AppModule {} 
+/* implements NestModule{
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(ValidateRequestMiddleware).forRoutes(AuthController)}}
-
+ */
