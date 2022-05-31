@@ -6,7 +6,7 @@ export class UserEntity {
     id: number;
 
     @Column({nullable: true, default: null})
-    phoneNumber?:number
+    phoneNumber:number
 
     @Column({nullable: true, default: null})
     password?:String

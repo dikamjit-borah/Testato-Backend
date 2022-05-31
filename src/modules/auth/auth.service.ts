@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { SignUpDto } from 'src/dto/SignUpDto';
 import { UserEntity } from 'src/entities/user.entity';
 import { Repository } from 'typeorm';
 
@@ -8,10 +9,12 @@ export class AuthService {
 
     constructor(@InjectRepository(UserEntity) private userRepo: Repository<UserEntity>) { }
 
-    async createUser(userEntity:UserEntity) {
+    async createUser(signUpDto:SignUpDto) {
         let userCreated;
         try {
-            userCreated = await this.userRepo.save(userEntity)
+            userCreated = await this.userRepo.save(signUpDto)
+            console.log("User created: "+userCreated);
+            
         } catch (error) {
             console.log(error);
             return {userCreated, error:""+error}
