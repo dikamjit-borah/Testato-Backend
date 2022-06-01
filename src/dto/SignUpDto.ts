@@ -8,4 +8,6 @@ export class SignUpDto{
     password:string
 
     //clientType 
+
+    //if pharmacy, location, name, 
 }

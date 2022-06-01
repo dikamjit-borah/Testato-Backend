@@ -1,4 +1,5 @@
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
+import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { type } from 'os';
 import { join } from 'path';
@@ -7,6 +8,8 @@ import { AppService } from './app.service';
 import { ValidateRequestMiddleware } from './middlewares/validateRequestMiddleware';
 import { AuthController } from './modules/auth/auth.controller';
 import { AuthModule } from './modules/auth/auth.module';
+import { MedicineModule } from './modules/medicine/medicine.module';
+import { JwtStrategyForAuth } from './passport/jwt.strategy';
 
 @Module({
   imports: [TypeOrmModule.forRoot(
@@ -20,9 +23,9 @@ import { AuthModule } from './modules/auth/auth.module';
     entities: [join(__dirname, '**', '*.entity.{ts,js}')],
     synchronize: true
   }
-  ), AuthModule],
+  ),PassportModule, AuthModule, MedicineModule],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, JwtStrategyForAuth],
 })
 export class AppModule {} 
 /* implements NestModule{

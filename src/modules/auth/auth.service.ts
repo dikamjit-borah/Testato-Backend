@@ -9,7 +9,9 @@ import { Repository } from 'typeorm';
 @Injectable()
 export class AuthService {
 
-    constructor(@InjectRepository(UserEntity) private userRepo: Repository<UserEntity>) { }
+    constructor(
+        @InjectRepository(UserEntity) private userRepo: Repository<UserEntity>
+        ) { }
 
     async createUser(signUpDto:SignUpDto) {
         let userCreated = false;
