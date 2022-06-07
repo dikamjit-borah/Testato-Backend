@@ -1,8 +1,7 @@
-import { Body, Controller, Get, HttpStatus, Post, Req, Res, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Post, Req, Res, UsePipes, ValidationPipe } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { SignInDto } from 'src/dto/SignInDto';
 import { SignUpDto } from 'src/dto/SignUpDto';
-import { JwtGuardForAuth } from 'src/passport/jwt.guard';
 import { BasicUtils } from 'src/utils/BasicUtils';
 import { Constants } from 'src/utils/Constants';
 import { AuthService } from './auth.service';
@@ -19,14 +18,14 @@ export class AuthController {
     async signUp(@Body() signUpDto: SignUpDto, @Res() res) {
         let responseData = {
             statusCode:HttpStatus.INTERNAL_SERVER_ERROR,
-            message: Constants.SOMETHING_WENT_WRONG,
+            message: Constants.Messages.SOMETHING_WENT_WRONG,
         }
         console.log(signUpDto);
 
         let isUserCreated = await this.authService.createUser(signUpDto)
         if (isUserCreated && isUserCreated['userCreated']) {
             responseData.statusCode = HttpStatus.OK
-            responseData.message = Constants.USER_CREATED
+            responseData.message = Constants.Messages.USER_CREATED
             return res
                 .status(HttpStatus.OK)
                 .send(responseData)
@@ -50,7 +49,7 @@ export class AuthController {
     async signIn(@Body() signInDto: SignInDto, @Res() res) {
         let responseData = {
             statusCode:HttpStatus.INTERNAL_SERVER_ERROR,
-            message: Constants.SOMETHING_WENT_WRONG,
+            message: Constants.Messages.SOMETHING_WENT_WRONG,
         }
         console.log(signInDto);
 
@@ -62,7 +61,7 @@ export class AuthController {
             {
                 const access_token = await this.loginUser(signInDto)
                 responseData.statusCode = HttpStatus.OK
-                responseData.message = Constants.LOGIN_SUCCESS
+                responseData.message = Constants.Messages.LOGIN_SUCCESS
                 responseData['access_token'] = access_token
                 return res
                     .status(HttpStatus.OK)
@@ -70,7 +69,7 @@ export class AuthController {
             }
             else{
                 responseData.statusCode = HttpStatus.UNAUTHORIZED
-                responseData.message = Constants.LOGIN_FAILED
+                responseData.message = Constants.Messages.LOGIN_FAILED
                 return res
                     .status(HttpStatus.UNAUTHORIZED)
                     .send(responseData)
@@ -86,7 +85,7 @@ export class AuthController {
             }
             
             responseData.statusCode = HttpStatus.UNAUTHORIZED
-            responseData.message = Constants.USER_NOT_FOUND
+            responseData.message = Constants.Messages.USER_NOT_FOUND
             return res
                 .status(HttpStatus.UNAUTHORIZED)
                 .send(responseData)

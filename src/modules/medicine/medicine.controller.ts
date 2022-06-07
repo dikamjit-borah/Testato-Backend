@@ -1,6 +1,7 @@
 import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { Ctx, MessagePattern, Payload, RmqContext } from '@nestjs/microservices';
 import { JwtGuardForAuth } from 'src/passport/jwt.guard';
+import { Constants } from 'src/utils/Constants';
 
 @Controller('medicine')
 export class MedicineController {
@@ -14,11 +15,13 @@ export class MedicineController {
         }
     }
 
-    @MessagePattern('UPDATE-MEDICINE-DATA')
+    @MessagePattern(Constants.RabbitMqConfig.MEDICINE_DATA_PATERN)
     async updateMedicineData(@Payload() data: {}, @Ctx() context: RmqContext){
 
         console.log("Fetching updated medicine data from rabbitmq");
-        console.log(data['medicineData'][0]['Product Name']);
-         
+        data['medicineData'].forEach(element => {
+            console.log(element['Product Name']);
+             
+        });
     }
 }

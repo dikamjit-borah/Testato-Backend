@@ -11,7 +11,7 @@ import { MedicineService } from './medicine.service';
       transport: Transport.RMQ,
       options: {
         urls: [process.env.RABBITMQ_URL],
-        queue: process.env.RABBITMQ_QUEUE_PREFIX + "_" + Constants.MEDICINE_DATA_QUEUE,
+        queue: process.env.RABBITMQ_QUEUE_PREFIX + "_" + Constants.RabbitMqConfig.MEDICINE_DATA_QUEUE,
         queueOptions: {
           durable: true
         },

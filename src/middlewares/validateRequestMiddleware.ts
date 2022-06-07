@@ -7,7 +7,7 @@ export class ValidateRequestMiddleware implements NestMiddleware{
         
         let responseData = {
             statusCode:HttpStatus.INTERNAL_SERVER_ERROR,
-            message:Constants.SOMETHING_WENT_WRONG
+            message:Constants.Messages.SOMETHING_WENT_WRONG
         }
 
         let headers = req.headers
@@ -18,7 +18,7 @@ export class ValidateRequestMiddleware implements NestMiddleware{
         }
         else{
             responseData.statusCode = HttpStatus.UNAUTHORIZED
-            responseData.message = Constants.USER_UNAUTHORIZED;
+            responseData.message = Constants.Messages.USER_UNAUTHORIZED;
             return res
                     .status(HttpStatus.UNAUTHORIZED)
                     .send(responseData)
