@@ -1,12 +1,11 @@
-import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
+require('dotenv').config
+
+import { Module} from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { type } from 'os';
 import { join } from 'path';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ValidateRequestMiddleware } from './middlewares/validateRequestMiddleware';
-import { AuthController } from './modules/auth/auth.controller';
 import { AuthModule } from './modules/auth/auth.module';
 import { MedicineModule } from './modules/medicine/medicine.module';
 import { JwtStrategyForAuth } from './passport/jwt.strategy';
@@ -14,12 +13,12 @@ import { JwtStrategyForAuth } from './passport/jwt.strategy';
 @Module({
   imports: [TypeOrmModule.forRoot(
     {
-    type: "mysql",
-    host: "127.0.0.1",
-    port: 3306,
-    username: "root",
+    type: process.env.DB_TYPE as any, 
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT as any,
+    username: process.env.DB_USERNAME,
     password: "",
-    database: "testato_database",
+    database: process.env.DB_DATABASE,
     entities: [join(__dirname, '**', '*.entity.{ts,js}')],
     synchronize: true
   }

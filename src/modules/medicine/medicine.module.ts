@@ -10,8 +10,8 @@ import { MedicineService } from './medicine.service';
       name: 'FETCH_MEDICINE_DATA',
       transport: Transport.RMQ,
       options: {
-        urls: [process.env.RABBITMQ_URL],
-        queue: process.env.RABBITMQ_QUEUE_PREFIX + "_" + Constants.RabbitMqConfig.MEDICINE_DATA_QUEUE,
+        urls: [process.env.RMQ_URL],
+        queue: process.env.RMQ_QUEUE_PREFIX + "_" + Constants.RabbitMqConfig.MEDICINE_DATA_QUEUE,
         queueOptions: {
           durable: true
         },

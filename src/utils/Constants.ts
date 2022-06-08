@@ -10,6 +10,6 @@ export module Constants{
     }
     export class RabbitMqConfig{
         static MEDICINE_DATA_QUEUE = "MEDICINE-DATA"
-        static MEDICINE_DATA_PATERN = "UPDATE-MEDICINE-DATA"
+        static MEDICINE_DATA_PATTERN = "UPDATE-MEDICINE-DATA"
     }
 }

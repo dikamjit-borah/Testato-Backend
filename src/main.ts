@@ -1,10 +1,10 @@
+require('dotenv').config()
+
 import { NestFactory } from '@nestjs/core';
 import { Transport } from '@nestjs/microservices';
 import { AppModule } from './app.module';
 import { BasicUtils } from './utils/BasicUtils';
 import { Constants } from './utils/Constants';
-
-require('dotenv').config()
 
 const PORT = process.env.PORT || 3000
 
@@ -14,8 +14,8 @@ async function bootstrap() {
   const testatoErp = app.connectMicroservice({
     transport: Transport.RMQ,
     options: {
-      urls: [process.env.RABBITMQ_URL],
-      queue: process.env.RABBITMQ_QUEUE_PREFIX + "_" + Constants.RabbitMqConfig.MEDICINE_DATA_QUEUE,
+      urls: [process.env.RMQ_URL],
+      queue: `${process.env.RMQ_QUEUE_PREFIX}_${Constants.RabbitMqConfig.MEDICINE_DATA_QUEUE}`,
       queueOptions: {
          durable: true 
         },

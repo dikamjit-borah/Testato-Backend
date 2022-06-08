@@ -7,21 +7,29 @@ import { Constants } from 'src/utils/Constants';
 export class MedicineController {
     @UseGuards(JwtGuardForAuth)
     @Get(':id')
-    async findMedicineById(@Query('id') id:number){
+    async findMedicineById(@Query('id') id: number) {
         console.log("yoyoyoyo");
         return {
-            statusCode:600,
-            message:"all good"
+            statusCode: 600,
+            message: "all good"
         }
     }
 
-    @MessagePattern(Constants.RabbitMqConfig.MEDICINE_DATA_PATERN)
-    async updateMedicineData(@Payload() data: {}, @Ctx() context: RmqContext){
+    @MessagePattern(Constants.RabbitMqConfig.MEDICINE_DATA_PATTERN)
+    async updateMedicineData(@Ctx() context: RmqContext) {
 
         console.log("Fetching updated medicine data from rabbitmq");
-        data['medicineData'].forEach(element => {
-            console.log(element['Product Name']);
-             
-        });
+
+        let { content } = context.getMessage()
+        const channel = context.getChannelRef();
+        content = JSON.parse(content.toString())
+
+        if(content.data && content.data['pharmacyId'])
+            console.log("Updating medicine data for "+ content.data['pharmacyId']);
+        channel.ack(context.getMessage())
+
+        console.log("Ack sent");
+        
     }
+
 }
