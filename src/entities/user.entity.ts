@@ -10,4 +10,10 @@ export class UserEntity {
 
     @Column({nullable: true, default: null})
     password?:String
+
+    @Column()
+    clientType:String
+
+    @Column()
+    clientId:number
 }
