@@ -20,10 +20,11 @@ export class AuthService {
             console.log("hashed password: \n"+hashedPassword);
             
             const newUser = this.userRepo.create({...signUpDto, password:""+hashedPassword});
+            await this.userRepo.save(newUser)
             console.log("new user created: \n"+ JSON.stringify(newUser));
             return {
                 userCreated: true,
-                newUser: this.userRepo.save(newUser)
+                newUser
             }
             
         } catch (error) {

@@ -1,7 +1,5 @@
+require('dotenv').config()
 import { TypeOrmModuleOptions } from "@nestjs/typeorm";
-import { join } from "path";
-import { MedicineEntity } from "src/entities/medicine.entity";
-import { UserEntity } from "src/entities/user.entity";
 
 const typeormConfig : TypeOrmModuleOptions ={
   type: process.env.DB_TYPE as any, 
@@ -9,12 +7,14 @@ const typeormConfig : TypeOrmModuleOptions ={
   port: process.env.DB_PORT as any,
   username: process.env.DB_USERNAME,
   password: "",
-  database: process.env.DB_DATABASE,
-  entities: [join(__dirname, '**', '*.entity.{ts,js}')],
+  database: process.env.DB_NAME,
   synchronize: process.env.NODE_ENV === "development"? false:false,
-  migrations:[
-    __dirname+'/../migrations/**/*{.ts,.js}'
-  ]
+  logging:true,
+
+  //entities: [__dirname + '/../**/*.entity.{js,ts}'],
+  entities: [__dirname + '/../**/*.entity.js'],
+  migrations: ['dist/src/db/migrations/*.js'],
+  migrationsTableName: process.env.DB_MIGRATION
   } 
 
   export default typeormConfig;

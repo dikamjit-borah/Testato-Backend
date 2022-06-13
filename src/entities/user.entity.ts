@@ -5,15 +5,17 @@ export class UserEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({nullable: true, default: null})
+    @Column({
+        type:"bigint",
+        name:'phone_number',
+        nullable: false
+    })
     phoneNumber:number
 
-    @Column({nullable: true, default: null})
-    password?:String
-
-    @Column()
-    clientType:String
-
-    @Column()
-    clientId:number
+    @Column({
+        type:"varchar",
+        name:'password',
+        nullable: false
+    })
+    password:String
 }

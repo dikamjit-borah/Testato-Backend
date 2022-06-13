@@ -7,7 +7,9 @@ export class MedicineEntity{
 @PrimaryGeneratedColumn()
 id: number;
 
-@Column()
+@Column({
+    name:'medicine_name',
+})
 medicineName: string
 
 }
