@@ -1,10 +1,12 @@
 import { isNotEmpty, IsNotEmpty } from "class-validator"
 
-export class SignInDto{
+export class MedicineDto{
 
     medicineId:number
 
     medicineName:string
+
+    medicineDescription: string
 
     //clientType 
 }

@@ -7,6 +7,7 @@ export module Constants{
         static LOGIN_SUCCESS:string = "Login successful"
         static LOGIN_FAILED:string = "Login failed. Please check credentials"
         static USER_NOT_FOUND:string = "User not found"
+        static MEDICINES_UPDATED:string = "Medicines updated successfully"
     }
     export class RabbitMqConfig{
         static MEDICINE_DATA_QUEUE = "MEDICINE-DATA"

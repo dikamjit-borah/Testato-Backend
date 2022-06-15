@@ -6,14 +6,14 @@ export class UserEntity {
     id: number;
 
     @Column({
-        type:"bigint",
+        type:'bigint',
         name:'phone_number',
         nullable: false
     })
     phoneNumber:number
 
     @Column({
-        type:"varchar",
+        type:'varchar',
         name:'password',
         nullable: false
     })

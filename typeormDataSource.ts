@@ -8,7 +8,7 @@ export default new DataSource({
     username: process.env.DB_USERNAME,
     password: "",
     database: process.env.DB_NAME,
-    synchronize: process.env.NODE_ENV === "development"? false:false,
+    synchronize: process.env.NODE_ENV === "development"? true:false,
     logging:true,
     
     entities: [__dirname + '/../**/*.entity.js'],

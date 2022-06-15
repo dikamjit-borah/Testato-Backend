@@ -1,6 +1,9 @@
-import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, HttpStatus, Param, Query, UseGuards } from '@nestjs/common';
 import { Ctx, MessagePattern, Payload, RmqContext } from '@nestjs/microservices';
+import { isEmpty } from 'class-validator';
+import { MedicineDto } from 'src/dto/MedicineDto';
 import { JwtGuardForAuth } from 'src/passport/jwt.guard';
+import { BasicUtils } from 'src/utils/BasicUtils';
 import { Constants } from 'src/utils/Constants';
 import { MedicineService } from './medicine.service';
 
@@ -17,8 +20,6 @@ export class MedicineController {
     @Get(':id')
     async findMedicineById(@Query('id') id: number) {
        
-        this.medicineService.updateMedicinesInDb()
-        
         return {
             statusCode: 600,
             message: "all good"
@@ -34,9 +35,31 @@ export class MedicineController {
         const channel = context.getChannelRef();
         content = JSON.parse(content.toString())
 
-        if(content.data && content.data['pharmacyId'])
-            console.log("Updating medicine data for "+ content.data['pharmacyId']);
-        channel.ack(context.getMessage())
+        const data = content && content.data ? content.data : null
+        const pharmacyId = data && data['pharmacyId'] ? data['pharmacyId'] : null
+        const medicineData = data && data['medicineData'] ? data['medicineData'] : null
+
+        if(pharmacyId){
+            console.log("Parsing medicine data for "+ pharmacyId);
+            let medicineDtoList:MedicineDto[] = []
+            if(medicineData && Array.isArray(medicineData) && medicineData.length != 0){
+                for (let i = 0; i < medicineData.length; i++) {
+                    let medicine = medicineData[i];
+                    let medicineDto: MedicineDto = new MedicineDto()
+                    medicineDto.medicineId = medicine['Product ID']
+                    medicineDto.medicineName = medicine['Product Name']
+                    medicineDtoList.push(medicineDto)
+                }
+            let isMedicinesUpdated = await this.medicineService.updateMedicinesInDb(medicineDtoList)
+            if(isMedicinesUpdated['medicinesUpdated']) console.log("Medicines updated successfully");
+            else if(isMedicinesUpdated['error']) console.log("Medicines could not be updated due to " + isMedicinesUpdated['error']);                
+            }
+        }
+
+        
+        
+            
+        //channel.ack(context.getMessage())
 
         console.log("Ack sent");
         
