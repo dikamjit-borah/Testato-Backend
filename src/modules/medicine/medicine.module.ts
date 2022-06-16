@@ -2,13 +2,14 @@ import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MedicineEntity } from 'src/entities/medicine.entity';
+import { MedicineDetailsEntity } from 'src/entities/medicineDetails.entity';
 import { Constants } from 'src/utils/Constants';
 import { MedicineController } from './medicine.controller';
 import { MedicineService } from './medicine.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([MedicineEntity]),
+    TypeOrmModule.forFeature([MedicineEntity, MedicineDetailsEntity]),
     ClientsModule.register([{
       name: 'FETCH_MEDICINE_DATA',
       transport: Transport.RMQ,
