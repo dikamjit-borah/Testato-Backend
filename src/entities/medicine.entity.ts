@@ -29,4 +29,11 @@ medicineName: string
 })
 isUpdated: any
 
+@Column({
+    type:'varchar',
+    name:'available_pharmacies',
+    default:null
+})
+availablePharmacies: string
+
 }
