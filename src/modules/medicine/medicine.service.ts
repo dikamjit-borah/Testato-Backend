@@ -2,14 +2,16 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MedicineDto } from 'src/dto/MedicineDto';
 import { MedicineEntity } from 'src/entities/medicine.entity';
-import { Repository } from 'typeorm';
+import { MedicineDetailsEntity } from 'src/entities/medicineDetails.entity';
+import { getConnection, Repository } from 'typeorm';
 
 @Injectable()
 export class MedicineService {
 
-constructor(
-    @InjectRepository(MedicineEntity) private medicineRepo:Repository<MedicineEntity>
-){ }
+    constructor(
+        @InjectRepository(MedicineEntity) private medicineRepo: Repository<MedicineEntity>,
+        @InjectRepository(MedicineDetailsEntity) private medicineDetailsRepo: Repository<MedicineDetailsEntity>
+    ) { }
 
 async searchForMedicineInDb(queryString:string){
     console.log();
@@ -35,22 +37,33 @@ async searchForMedicineInDb(queryString:string){
 }
 
 async updateMedicinesInDb(medicineDtoList:MedicineDto[]) {
-    let medicinesUpdated = false
-    try{
-        await this.medicineRepo
-            .createQueryBuilder()
-            .insert()
-            .into('medicine_entity')
-            .values(medicineDtoList)
-            .orUpdate(["is_updated"]) // is_updated becomes 1, pharmacy_ids column is updated/appended with new pharm id
-            .execute()
-            
-        medicinesUpdated = true
-        return {medicinesUpdated}
-    }catch(error)
-    {
-        return {medicinesUpdated, error}
+        let medicinesUpdated = false
+        const queryRunner = await getConnection().createQueryRunner();
+        await queryRunner.startTransaction();
+        try {
+            await queryRunner.manager
+                .createQueryBuilder()
+                .insert()
+                .into('medicine_entity')
+                .values(medicineDtoList)
+                .orUpdate(["is_updated"])
+                .execute()
+
+            await queryRunner.manager
+                .createQueryBuilder()
+                .insert()
+                .into('medicine_details_entity')
+                .values(medicineDtoList)
+                .orUpdate(["is_updated"])
+                .execute()
+
+            await queryRunner.commitTransaction();
+            medicinesUpdated = true
+            return { medicinesUpdated }
+        } catch (error) {
+            await queryRunner.rollbackTransaction();
+            return { medicinesUpdated, error }
+        }
     }
-}
 }
 

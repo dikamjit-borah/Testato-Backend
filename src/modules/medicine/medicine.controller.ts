@@ -97,6 +97,11 @@ export class MedicineController {
                     let medicineDto: MedicineDto = new MedicineDto()
                     medicineDto.medicineId = medicine['Product ID']
                     medicineDto.medicineName = medicine['Product Name']
+                    medicineDto.medicineMrp = medicine['MRP (₹)']
+                    medicineDto.medicineComposition = medicine['Composition']
+                    medicineDto.medicineManufacturer = medicine['Manufacturer']
+                    medicineDto.medicinePackingType = medicine['Packing Type']
+                    medicineDto.medicinePackaging = medicine['Packaging']
                     medicineDtoList.push(medicineDto)
                 }
                 let isMedicinesUpdated = await this.medicineService.updateMedicinesInDb(medicineDtoList)
