@@ -13,9 +13,36 @@ export class MedicineService {
         @InjectRepository(MedicineDetailsEntity) private medicineDetailsRepo: Repository<MedicineDetailsEntity>
     ) { }
 
+async fetchMedicineDetails(medicineId: any){
+    let detailsAvailable = false
+    try {
+        const medicineDetails = await this.medicineDetailsRepo.findOneBy({
+            medicineId
+        })
+
+        if(medicineDetails){
+            detailsAvailable = true
+            return({
+                detailsAvailable,
+                medicineDetails
+            })
+        }
+
+        return({
+            detailsAvailable
+        })
+        
+        
+    } catch (error) {
+        return {
+            detailsAvailable,
+            error
+        }
+    }
+
+}
+
 async searchForMedicineInDb(queryString:string){
-    console.log();
-    
     let medicineFound = false
     try {
         const query = `SELECT medicine_id, medicine_name from medicine_entity WHERE medicine_name LIKE "%${queryString}%"`

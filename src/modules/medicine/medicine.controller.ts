@@ -45,17 +45,18 @@ export class MedicineController {
 
     @Get('find')
     async findMedicineById(@Query('medicineId') medicineId: string, @Res() res){
-        console.log("nigga");
+        console.log("Fetching details for " + medicineId);
         
-        /* const data = await this.medicineService.fetchMedicineDetails(medicineId)
+        const data = await this.medicineService.fetchMedicineDetails(medicineId)
+        
         if(data){
-            if(data['medicineFound'] && data['medicineData']){
-                if(data['medicineData'].length>0) return res.status(HttpStatus.OK).send(BasicUtils.generateResponse(HttpStatus.OK, Constants.Messages.MEDICINE_DETAILS_FOUND, {data: data['medicineData']})) 
-                return res.status(HttpStatus.OK).send(BasicUtils.generateResponse(HttpStatus.OK, Constants.Messages.MEDICINE_DETAILS_NOT_FOUND))
+            if(data['detailsAvailable'] && data['medicineDetails']){
+                return res.status(HttpStatus.OK).send(BasicUtils.generateResponse(HttpStatus.OK, Constants.Messages.MEDICINE_DETAILS_FOUND, {medicineDetails: data['medicineDetails']})) 
             }
             if(data['error'])
                 return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send(BasicUtils.generateResponse(HttpStatus.INTERNAL_SERVER_ERROR, data['error']))
-        } */
+            else return res.status(HttpStatus.OK).send(BasicUtils.generateResponse(HttpStatus.OK, Constants.Messages.MEDICINE_DETAILS_NOT_FOUND))
+        }
 
         return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send(BasicUtils.generateResponse())
     }
