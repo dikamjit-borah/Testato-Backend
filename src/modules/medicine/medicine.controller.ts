@@ -1,4 +1,4 @@
-import { Controller, Get, HttpStatus, Param, Query, Res, UseGuards } from '@nestjs/common';
+import { Controller, Get, HttpStatus, Param, Post, Query, Res, UseGuards } from '@nestjs/common';
 import { Ctx, MessagePattern, Payload, RmqContext } from '@nestjs/microservices';
 import { isEmpty } from 'class-validator';
 import { MedicineDto } from 'src/dto/MedicineDto';
@@ -34,12 +34,44 @@ export class MedicineController {
             if(results['medicineFound'] && results['medicines'])
             {
                 if(results['medicines'].length>0) return res.status(HttpStatus.OK).send(BasicUtils.generateResponse(HttpStatus.OK, Constants.Messages.MEDICINES_FOUND, {results: results['medicines']}))
-                return res.status(HttpStatus.OK).send(BasicUtils.generateResponse(HttpStatus.OK, Constants.Messages.MEDICINE_NOT_FOUND))
+                return res.status(HttpStatus.OK).send(BasicUtils.generateResponse(HttpStatus.OK, Constants.Messages.MEDICINES_NOT_FOUND))
             }
             if(results['error'])
                 return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send(BasicUtils.generateResponse(HttpStatus.INTERNAL_SERVER_ERROR, results['error']))
         }
 
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send(BasicUtils.generateResponse())
+    }
+
+    @Get('find')
+    async findMedicineById(@Query('medicineId') medicineId: string, @Res() res){
+        console.log("nigga");
+        
+        /* const data = await this.medicineService.fetchMedicineDetails(medicineId)
+        if(data){
+            if(data['medicineFound'] && data['medicineData']){
+                if(data['medicineData'].length>0) return res.status(HttpStatus.OK).send(BasicUtils.generateResponse(HttpStatus.OK, Constants.Messages.MEDICINE_DETAILS_FOUND, {data: data['medicineData']})) 
+                return res.status(HttpStatus.OK).send(BasicUtils.generateResponse(HttpStatus.OK, Constants.Messages.MEDICINE_DETAILS_NOT_FOUND))
+            }
+            if(data['error'])
+                return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send(BasicUtils.generateResponse(HttpStatus.INTERNAL_SERVER_ERROR, data['error']))
+        } */
+
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send(BasicUtils.generateResponse())
+    }
+
+    @Post('availablePharmacies')
+    async findAvailablePharmacies(@Query('medicineId') medicineId: string, @Res() res){
+       /*  const data = await this.medicineService.fetchMedicineDetails(medicineId)
+        if(data){
+            if(data['medicineFound'] && data['medicineData']){
+                if(data['medicineData'].length>0) return res.status(HttpStatus.OK).send(BasicUtils.generateResponse(HttpStatus.OK, Constants.Messages.MEDICINE_DETAILS_FOUND, {data: data['medicineData']})) 
+                return res.status(HttpStatus.OK).send(BasicUtils.generateResponse(HttpStatus.OK, Constants.Messages.MEDICINE_DETAILS_NOT_FOUND))
+            }
+            if(data['error'])
+                return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send(BasicUtils.generateResponse(HttpStatus.INTERNAL_SERVER_ERROR, data['error']))
+        }
+ */
         return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send(BasicUtils.generateResponse())
     }
 
