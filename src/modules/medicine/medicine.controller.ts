@@ -53,11 +53,10 @@ export class MedicineController {
                     medicineDto.medicineManufacturer = medicine['Manufacturer']
                     medicineDto.medicinePackingType = medicine['Packing Type']
                     medicineDto.medicinePackaging = medicine['Packaging']
-                    medicineDto.availablePharmacies = 888111202020 as any
                     medicineDtoList.push(medicineDto)
                 }
-            let isMedicinesUpdated = await this.medicineService.updateMedicinesInDb(pharmacyId, medicineDtoList)
-            if(isMedicinesUpdated['medicinesUpdated']) console.log("Medicines updated successfully for "+ pharmacyId);
+            let isMedicinesUpdated = await this.medicineService.updateMedicinesInDb(medicineDtoList)
+            if(isMedicinesUpdated['medicinesUpdated']) console.log("Medicines updated successfully");
             else if(isMedicinesUpdated['error']) console.log("Medicines could not be updated due to " + isMedicinesUpdated['error']);                
             }
         }
