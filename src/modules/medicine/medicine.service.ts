@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { map } from 'rxjs';
 import { MedicineDto } from 'src/dto/MedicineDto';
 import { MedicineEntity } from 'src/entities/medicine.entity';
 import { MedicineDetailsEntity } from 'src/entities/medicineDetails.entity';
-import { getConnection, Repository } from 'typeorm';
+import { EntityManager, getConnection, Repository } from 'typeorm';
 
 @Injectable()
 export class MedicineService {
@@ -13,84 +14,88 @@ export class MedicineService {
         @InjectRepository(MedicineDetailsEntity) private medicineDetailsRepo: Repository<MedicineDetailsEntity>
     ) { }
 
-async fetchMedicineDetails(medicineId: any){
-    let detailsAvailable = false
-    try {
-        const medicineDetails = await this.medicineDetailsRepo.findOneBy({
-            medicineId
-        })
-
-        if(medicineDetails){
-            detailsAvailable = true
-            return({
-                detailsAvailable,
-                medicineDetails
+    async fetchMedicineDetails(medicineId: any) {
+        let detailsAvailable = false
+        try {
+            const medicineDetails = await this.medicineDetailsRepo.findOneBy({
+                medicineId
             })
+
+            if (medicineDetails) {
+                detailsAvailable = true
+                return ({
+                    detailsAvailable,
+                    medicineDetails
+                })
+            }
+
+            return ({
+                detailsAvailable
+            })
+
+
+        } catch (error) {
+            return {
+                detailsAvailable,
+                error
+            }
         }
 
-        return({
-            detailsAvailable
-        })
-        
-        
-    } catch (error) {
-        return {
-            detailsAvailable,
-            error
-        }
     }
 
-}
+    async searchForMedicineInDb(queryString: string) {
+        let medicineFound = false
+        try {
+            const query = `SELECT medicine_id, medicine_name from medicine_entity WHERE medicine_name LIKE "%${queryString}%"`
+            let medicines = await this.medicineRepo.query(query)
+            medicineFound = true
+            return {
+                medicineFound,
+                medicines
+            }
 
-async searchForMedicineInDb(queryString:string){
-    let medicineFound = false
-    try {
-        const query = `SELECT medicine_id, medicine_name from medicine_entity WHERE medicine_name LIKE "%${queryString}%"`
-        let medicines = await this.medicineRepo.query(query)      
-        medicineFound = true
-        return {
-            medicineFound,
-            medicines
+        } catch (error) {
+            console.log(error);
+            return {
+                medicineFound,
+                error
+            }
         }
-          
-    } catch (error) {
-        console.log(error);
-        return {
-            medicineFound,
-            error
-        }
+
     }
 
-}
-
-async updateMedicinesInDb(medicineDtoList:MedicineDto[]) {
+    async updateMedicinesInDb(medicineDtoList: MedicineDto[]) {
         let medicinesUpdated = false
         const queryRunner = await getConnection().createQueryRunner();
-        await queryRunner.startTransaction();
+
         try {
-            await queryRunner.manager
-                .createQueryBuilder()
-                .insert()
-                .into('medicine_entity')
-                .values(medicineDtoList)
-                .orUpdate(["is_updated"])
-                .execute()
 
-            await queryRunner.manager
-                .createQueryBuilder()
-                .insert()
-                .into('medicine_details_entity')
-                .values(medicineDtoList)
-                .orUpdate(["is_updated"])
-                .execute()
+            for (let index = 0; index < medicineDtoList.length; index++) {
+                const item = medicineDtoList[index];
+                await queryRunner.manager.query(`CALL SP_UPDATE_MEDICINE_DATA (${item.medicineId}, ${item.medicineName}, ${item.availablePharmacies}, ${item.medicineMrp}, ${item.medicineManufacturer}, ${item.medicineComposition}, ${item.medicinePackingType}, ${item.medicinePackaging});`)
 
-            await queryRunner.commitTransaction();
+            }
             medicinesUpdated = true
-            return { medicinesUpdated }
+            return { medicinesUpdated }      
+            
+
+           
         } catch (error) {
-            await queryRunner.rollbackTransaction();
             return { medicinesUpdated, error }
         }
     }
+
+    /*
+    INSERT INTO `medicine_entity` (`medicine_name`, `medicine_id`, `is_updated`, `available_pharmacies`) VALUES ('maamaa', '77777111', '0', '12228') ON DUPLICATE KEY UPDATE `available_pharmacies`= CONCAT_WS(",", medicine_entity.available_pharmacies, VALUES(`available_pharmacies`));
+    
+    
+    INSERT INTO `medicine_entity` (`medicine_name`, `medicine_id`, `is_updated`, `available_pharmacies`) VALUES ('maamaa', '77777111', '0', '12228') 
+ON DUPLICATE KEY 
+UPDATE medicine_entity.available_pharmacies = CASE 
+                                                WHEN medicine_entity.available_pharmacies IS NOT NULL AND  medicine_entity.available_pharmacies <> ""
+                                                    THEN CONCAT_WS(",", medicine_entity.available_pharmacies, VALUES(`available_pharmacies`))
+                                                        END;
+    
+    */
 }
 

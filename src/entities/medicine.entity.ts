@@ -23,10 +23,10 @@ medicineId:string
 medicineName: string
 
 @Column({
-    type:'bool',
-    name:'is_updated',
-    default:false,
+    type:'varchar',
+    name:'available_pharmacies',
+    nullable:false
 })
-isUpdated: any
+availablePharmacies: String
 
 }

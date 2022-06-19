@@ -103,13 +103,14 @@ export class MedicineController {
                     medicineDto.medicineManufacturer = medicine['Manufacturer']
                     medicineDto.medicinePackingType = medicine['Packing Type']
                     medicineDto.medicinePackaging = medicine['Packaging']
+                    medicineDto.availablePharmacies = pharmacyId
                     medicineDtoList.push(medicineDto)
                 }
                 let isMedicinesUpdated = await this.medicineService.updateMedicinesInDb(medicineDtoList)
                 if (isMedicinesUpdated['medicinesUpdated']) {
                     console.log("Medicines updated successfully");
-                    channel.ack(context.getMessage())
-                    console.log("Ack sent");
+                   // channel.ack(context.getMessage())
+                   // console.log("Ack sent");
                 } else if (isMedicinesUpdated['error']) console.log("Medicines could not be updated due to " + isMedicinesUpdated['error']);
             }
         }
