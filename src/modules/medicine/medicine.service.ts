@@ -72,30 +72,29 @@ export class MedicineService {
 
             for (let index = 0; index < medicineDtoList.length; index++) {
                 const item = medicineDtoList[index];
-                await queryRunner.manager.query(`CALL SP_UPDATE_MEDICINE_DATA (${item.medicineId}, ${item.medicineName}, ${item.availablePharmacies}, ${item.medicineMrp}, ${item.medicineManufacturer}, ${item.medicineComposition}, ${item.medicinePackingType}, ${item.medicinePackaging});`)
-
+                await queryRunner.manager.query(`CALL SP_UPDATE_MEDICINE_DATA (?, ?, ?, ?, ?, ?, ?, ?);`,
+                [
+                    item.medicineId, 
+                    item.medicineName,
+                    item.availablePharmacies, 
+                    item.medicineMrp, 
+                    item.medicineManufacturer, 
+                    item.medicineComposition, 
+                    item.medicinePackingType, 
+                    item.medicinePackaging])
             }
+
             medicinesUpdated = true
             return { medicinesUpdated }      
-            
-
            
         } catch (error) {
             return { medicinesUpdated, error }
         }
     }
-
-    /*
-    INSERT INTO `medicine_entity` (`medicine_name`, `medicine_id`, `is_updated`, `available_pharmacies`) VALUES ('maamaa', '77777111', '0', '12228') ON DUPLICATE KEY UPDATE `available_pharmacies`= CONCAT_WS(",", medicine_entity.available_pharmacies, VALUES(`available_pharmacies`));
-    
-    
-    INSERT INTO `medicine_entity` (`medicine_name`, `medicine_id`, `is_updated`, `available_pharmacies`) VALUES ('maamaa', '77777111', '0', '12228') 
-ON DUPLICATE KEY 
-UPDATE medicine_entity.available_pharmacies = CASE 
-                                                WHEN medicine_entity.available_pharmacies IS NOT NULL AND  medicine_entity.available_pharmacies <> ""
-                                                    THEN CONCAT_WS(",", medicine_entity.available_pharmacies, VALUES(`available_pharmacies`))
-                                                        END;
-    
-    */
 }
 
+
+   /*  await Promise.all(queries.map((query)=>{
+                console.log(query);
+                queryRunner.manager.query(query)
+            })) */

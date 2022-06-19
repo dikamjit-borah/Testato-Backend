@@ -45,12 +45,4 @@ export class MedicineDetailsEntity {
         name:'medicine_packaging',
     })
     medicinePackaging: string
-
-    @Column({
-        type:'bool',
-        name:'is_updated',
-        default:false,
-    })
-    isUpdated: any
-
 }
