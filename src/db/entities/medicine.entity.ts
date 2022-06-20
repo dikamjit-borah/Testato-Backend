@@ -19,6 +19,7 @@ medicineId:string
 @Column({
     type:'varchar',
     name:'medicine_name',
+    nullable:false
 })
 medicineName: string
 

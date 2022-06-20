@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { MedicineEntity } from 'src/entities/medicine.entity';
-import { MedicineDetailsEntity } from 'src/entities/medicineDetails.entity';
+import { MedicineEntity } from 'src/db/entities/medicine.entity';
+import { MedicineDetailsEntity } from 'src/db/entities/medicineDetails.entity';
 import { Constants } from 'src/utils/Constants';
 import { MedicineController } from './medicine.controller';
 import { MedicineService } from './medicine.service';

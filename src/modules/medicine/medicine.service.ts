@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { map } from 'rxjs';
 import { MedicineDto } from 'src/dto/MedicineDto';
-import { MedicineEntity } from 'src/entities/medicine.entity';
-import { MedicineDetailsEntity } from 'src/entities/medicineDetails.entity';
+import { MedicineEntity } from 'src/db/entities/medicine.entity';
+import { MedicineDetailsEntity } from 'src/db/entities/medicineDetails.entity';
 import { EntityManager, getConnection, Repository } from 'typeorm';
 
 @Injectable()

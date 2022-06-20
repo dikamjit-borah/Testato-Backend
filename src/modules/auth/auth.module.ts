@@ -1,10 +1,11 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+require('dotenv').config()
+import { Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserEntity } from 'src/entities/user.entity';
+import { UserEntity } from 'src/db/entities/user.entity';
 import { PassportModule } from '@nestjs/passport';
-import { JwtModule, JwtService } from '@nestjs/jwt';
+import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategyForAuth } from 'src/passport/jwt.strategy';
 
 
@@ -14,8 +15,8 @@ import { JwtStrategyForAuth } from 'src/passport/jwt.strategy';
     PassportModule,  
     JwtModule.register(
     {
-      secret:'JWT_SECRET',
-      signOptions:{expiresIn:3400}
+      secret:process.env.JWT_SECRET,
+      signOptions:{expiresIn:process.env.JWT_EXPIRY}
     }
   )],
   controllers: [AuthController],
