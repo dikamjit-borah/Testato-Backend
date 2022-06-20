@@ -43,6 +43,28 @@ export class MedicineService {
 
     }
 
+    async fetchAvailablePharmacies(medicineId: any) {
+        let pharmaciesFound = false
+        try {
+            const data = await this.medicineRepo.findOneBy({
+                medicineId
+            })
+
+            if (data && data.availablePharmacies) {
+                pharmaciesFound = true
+                return {
+                    pharmaciesFound,
+                    availablePharmacies: data.availablePharmacies
+                }
+            }
+        } catch (error) {
+            return {
+                pharmaciesFound,
+                error
+            }
+        }
+    }
+
     async searchForMedicineInDb(queryString: string) {
         let medicineFound = false
         try {
@@ -73,20 +95,20 @@ export class MedicineService {
             for (let index = 0; index < medicineDtoList.length; index++) {
                 const item = medicineDtoList[index];
                 await queryRunner.manager.query(`CALL SP_UPDATE_MEDICINE_DATA (?, ?, ?, ?, ?, ?, ?, ?);`,
-                [
-                    item.medicineId, 
-                    item.medicineName,
-                    item.availablePharmacies, 
-                    item.medicineMrp, 
-                    item.medicineManufacturer, 
-                    item.medicineComposition, 
-                    item.medicinePackingType, 
-                    item.medicinePackaging])
+                    [
+                        item.medicineId,
+                        item.medicineName,
+                        item.availablePharmacies,
+                        item.medicineMrp,
+                        item.medicineManufacturer,
+                        item.medicineComposition,
+                        item.medicinePackingType,
+                        item.medicinePackaging])
             }
 
             medicinesUpdated = true
-            return { medicinesUpdated }      
-           
+            return { medicinesUpdated }
+
         } catch (error) {
             return { medicinesUpdated, error }
         }
@@ -94,7 +116,7 @@ export class MedicineService {
 }
 
 
-   /*  await Promise.all(queries.map((query)=>{
-                console.log(query);
-                queryRunner.manager.query(query)
-            })) */
+/*  await Promise.all(queries.map((query)=>{
+             console.log(query);
+             queryRunner.manager.query(query)
+         })) */

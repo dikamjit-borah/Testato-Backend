@@ -5,12 +5,13 @@ import { MedicineDto } from 'src/dto/MedicineDto';
 import { JwtGuardForAuth } from 'src/passport/jwt.guard';
 import { BasicUtils } from 'src/utils/BasicUtils';
 import { Constants } from 'src/utils/Constants';
+import { UserService } from '../user/user.service';
 import { MedicineService } from './medicine.service';
 
 @Controller('medicine')
 export class MedicineController {
 
-    constructor(private medicineService: MedicineService ){
+    constructor(private medicineService: MedicineService, private userService: UserService ){
 
     }
 
@@ -61,18 +62,36 @@ export class MedicineController {
         return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send(BasicUtils.generateResponse())
     }
 
-    @Post('availablePharmacies')
-    async findAvailablePharmacies(@Query('medicineId') medicineId: string, @Res() res){
-       /*  const data = await this.medicineService.fetchMedicineDetails(medicineId)
-        if(data){
-            if(data['medicineFound'] && data['medicineData']){
-                if(data['medicineData'].length>0) return res.status(HttpStatus.OK).send(BasicUtils.generateResponse(HttpStatus.OK, Constants.Messages.MEDICINE_DETAILS_FOUND, {data: data['medicineData']})) 
-                return res.status(HttpStatus.OK).send(BasicUtils.generateResponse(HttpStatus.OK, Constants.Messages.MEDICINE_DETAILS_NOT_FOUND))
-            }
-            if(data['error'])
-                return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send(BasicUtils.generateResponse(HttpStatus.INTERNAL_SERVER_ERROR, data['error']))
+    @Get('availablePharmacies')
+    async findAvailablePharmacies(@Query('medicineId') medicineId: string, @Query('userLatitude') userLatitude: number, @Query('userLongitude') userLongitude, @Query('viewAllAvailablePharmacies') viewAllAvailablePharmacies: boolean, @Res() res){
+       
+        console.log("toyoyoyoy", viewAllAvailablePharmacies);
+        
+        const results = await this.medicineService.fetchAvailablePharmacies(medicineId)
+        if(results['pharmaciesFound'] && results['availablePharmacies']){
+            const allPharmacies = [...new Set(results['availablePharmacies'].split(','))]
+            const detailsOfAllPharmacies = []
+
+            if(allPharmacies){
+                await Promise.all(
+                    allPharmacies.map( async pharmacy=>{
+                    const userDetails = await this.userService.fetchUserDetails(pharmacy)
+                    detailsOfAllPharmacies.push(userDetails)
+                }))
+        
+                console.log(detailsOfAllPharmacies);
+
+                if(detailsOfAllPharmacies && detailsOfAllPharmacies.length>0){
+                    
+                    if(viewAllAvailablePharmacies.valueOf)
+                    {
+                       return res.status(HttpStatus.OK).send(BasicUtils.generateResponse(HttpStatus.OK, Constants.Messages.PHARMACIES_AVAILABLE, {pharmacies:detailsOfAllPharmacies}))
+                    }
+                }
+            }            
+            
         }
- */
+
         return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send(BasicUtils.generateResponse())
     }
 

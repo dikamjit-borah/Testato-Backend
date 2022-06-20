@@ -1,7 +1,7 @@
 CREATE DEFINER=`root`@`localhost` PROCEDURE `SP_UPDATE_MEDICINE_DATA`(
 p_medicine_id varchar(255), 
 p_medicine_name varchar(255), 
-p_available_pharmacies varchar(255), 
+p_available_pharmacies longtext, 
 p_medicine_mrp float(15,2), 
 p_medicine_manufacturer varchar(255), 
 p_medicine_composition varchar(255), 

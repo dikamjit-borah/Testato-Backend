@@ -24,7 +24,7 @@ medicineId:string
 medicineName: string
 
 @Column({
-    type:'varchar',
+    type:'longtext',
     name:'available_pharmacies',
     nullable:false
 })

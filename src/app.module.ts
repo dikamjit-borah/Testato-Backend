@@ -8,12 +8,14 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
 import { MedicineModule } from './modules/medicine/medicine.module';
+import { UserModule } from './modules/user/user.module';
 import { JwtStrategyForAuth } from './passport/jwt.strategy';
+
 @Module({
   imports: [TypeOrmModule.forRoot(typeormConfig),
     PassportModule, 
     AuthModule, 
-    MedicineModule],
+    MedicineModule, UserModule],
   controllers: [AppController],
   providers: [AppService, JwtStrategyForAuth],
 })
