@@ -2,6 +2,8 @@
 export module Constants{
     export class Messages{
         static USER_CREATED: string = "User created successfully"
+        static USER_NOT_CREATED: string = "User could not be created"
+        static USER_EXISTS: string = "User already exists. Please log in"
         static SOMETHING_WENT_WRONG: string = "Something went wrong. Please try again"
         static USER_UNAUTHORIZED: string = "User is not authorized"
         static LOGIN_SUCCESS: string = "Login successful"

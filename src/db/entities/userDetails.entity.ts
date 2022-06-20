@@ -1,7 +1,7 @@
 import { Column, Entity } from "typeorm"
 
 @Entity()
-export class UserDetails {
+export class UserDetailsEntity {
 
     @Column({
         type:'bigint',
@@ -17,13 +17,6 @@ export class UserDetails {
         nullable: false
     })
     userName:String
-
-    @Column({
-        type:'varchar',
-        name:'user_type',
-        nullable:false
-    })
-    userType:String
 
     @Column({
         type:'float',

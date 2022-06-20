@@ -7,11 +7,12 @@ import { UserEntity } from 'src/db/entities/user.entity';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategyForAuth } from 'src/passport/jwt.strategy';
+import { UserDetailsEntity } from 'src/db/entities/userDetails.entity';
 
 
 @Module({
   imports:[
-    TypeOrmModule.forFeature([UserEntity]), 
+    TypeOrmModule.forFeature([UserEntity, UserDetailsEntity]), 
     PassportModule,  
     JwtModule.register(
     {

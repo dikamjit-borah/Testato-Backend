@@ -2,12 +2,11 @@ import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class UserEntity {
-    @PrimaryGeneratedColumn()
-    id: number;
 
     @Column({
         type:'bigint',
         name:'phone_number',
+        primary:true,
         nullable: false
     })
     phoneNumber:number
@@ -18,4 +17,11 @@ export class UserEntity {
         nullable: false
     })
     password:String
+
+    @Column({
+        type:'varchar',
+        name:'user_type',
+        nullable: false,
+    })
+    userType:String
 }
