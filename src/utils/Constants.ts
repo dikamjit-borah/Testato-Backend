@@ -24,6 +24,7 @@ export module Constants{
 
         static PHARMACIES_NEARBY: string = "Pharmacies near you"
         static PHARMACIES_AVAILABLE: string = "Pharmacies available"
+        static PHARMACIES_NOT_AVAILABLE: string = "Pharmacies not available"
     }
     export class RabbitMqConfig{
         static MEDICINE_DATA_QUEUE = "MEDICINE-DATA"

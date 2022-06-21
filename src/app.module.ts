@@ -10,12 +10,18 @@ import { AuthModule } from './modules/auth/auth.module';
 import { MedicineModule } from './modules/medicine/medicine.module';
 import { UserModule } from './modules/user/user.module';
 import { JwtStrategyForAuth } from './passport/jwt.strategy';
-
+import { LocationModule } from './modules/location/location.module';
+import { HttpModule } from '@nestjs/axios';
 @Module({
-  imports: [TypeOrmModule.forRoot(typeormConfig),
+  imports: [
+    TypeOrmModule.forRoot(typeormConfig),
     PassportModule, 
+    HttpModule,
     AuthModule, 
-    MedicineModule, UserModule],
+    MedicineModule, 
+    UserModule,
+    LocationModule
+  ],
   controllers: [AppController],
   providers: [AppService, JwtStrategyForAuth],
 })

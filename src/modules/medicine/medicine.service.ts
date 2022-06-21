@@ -57,6 +57,9 @@ export class MedicineService {
                     availablePharmacies: data.availablePharmacies
                 }
             }
+            return {
+                pharmaciesFound
+            }
         } catch (error) {
             return {
                 pharmaciesFound,

@@ -5,19 +5,20 @@ import { MedicineDto } from 'src/dto/MedicineDto';
 import { JwtGuardForAuth } from 'src/passport/jwt.guard';
 import { BasicUtils } from 'src/utils/BasicUtils';
 import { Constants } from 'src/utils/Constants';
+import { LocationService } from '../location/location.service';
 import { UserService } from '../user/user.service';
 import { MedicineService } from './medicine.service';
 
 @Controller('medicine')
 export class MedicineController {
 
-    constructor(private medicineService: MedicineService, private userService: UserService ){
+    constructor(private medicineService: MedicineService, private userService: UserService, private locationService: LocationService) {
 
     }
 
 
 
-   // @UseGuards(JwtGuardForAuth)
+    // @UseGuards(JwtGuardForAuth)
     /* @Get(':id')
     async findMedicineById(@Query('id') id: number) {
        
@@ -28,16 +29,15 @@ export class MedicineController {
     } */
 
     @Get('search')
-    async search(@Query('queryString') queryString: string, @Res() res){
+    async search(@Query('queryString') queryString: string, @Res() res) {
         console.log("Search initiated for " + queryString);
         let results = await this.medicineService.searchForMedicineInDb(queryString)
-        if(results){
-            if(results['medicineFound'] && results['medicines'])
-            {
-                if(results['medicines'].length>0) return res.status(HttpStatus.OK).send(BasicUtils.generateResponse(HttpStatus.OK, Constants.Messages.MEDICINES_FOUND, {results: results['medicines']}))
+        if (results) {
+            if (results['medicineFound'] && results['medicines']) {
+                if (results['medicines'].length > 0) return res.status(HttpStatus.OK).send(BasicUtils.generateResponse(HttpStatus.OK, Constants.Messages.MEDICINES_FOUND, { results: results['medicines'] }))
                 return res.status(HttpStatus.OK).send(BasicUtils.generateResponse(HttpStatus.OK, Constants.Messages.MEDICINES_NOT_FOUND))
             }
-            if(results['error'])
+            if (results['error'])
                 return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send(BasicUtils.generateResponse(HttpStatus.INTERNAL_SERVER_ERROR, results['error']))
         }
 
@@ -45,16 +45,16 @@ export class MedicineController {
     }
 
     @Get('find')
-    async findMedicineById(@Query('medicineId') medicineId: string, @Res() res){
+    async findMedicineById(@Query('medicineId') medicineId: string, @Res() res) {
         console.log("Fetching details for " + medicineId);
-        
+
         const data = await this.medicineService.fetchMedicineDetails(medicineId)
-        
-        if(data){
-            if(data['detailsAvailable'] && data['medicineDetails']){
-                return res.status(HttpStatus.OK).send(BasicUtils.generateResponse(HttpStatus.OK, Constants.Messages.MEDICINE_DETAILS_FOUND, {medicineDetails: data['medicineDetails']})) 
+
+        if (data) {
+            if (data['detailsAvailable'] && data['medicineDetails']) {
+                return res.status(HttpStatus.OK).send(BasicUtils.generateResponse(HttpStatus.OK, Constants.Messages.MEDICINE_DETAILS_FOUND, { medicineDetails: data['medicineDetails'] }))
             }
-            if(data['error'])
+            if (data['error'])
                 return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send(BasicUtils.generateResponse(HttpStatus.INTERNAL_SERVER_ERROR, data['error']))
             else return res.status(HttpStatus.OK).send(BasicUtils.generateResponse(HttpStatus.OK, Constants.Messages.MEDICINE_DETAILS_NOT_FOUND))
         }
@@ -63,36 +63,43 @@ export class MedicineController {
     }
 
     @Get('availablePharmacies')
-    async findAvailablePharmacies(@Query('medicineId') medicineId: string, @Query('userLatitude') userLatitude: number, @Query('userLongitude') userLongitude, @Query('viewAllAvailablePharmacies') viewAllAvailablePharmacies: boolean, @Res() res){
-       
-        console.log("toyoyoyoy", viewAllAvailablePharmacies);
+    async findAvailablePharmacies(
+        @Query('medicineId') medicineId: string,
+        @Query('userLatitude') userLatitude: number,
+        @Query('userLongitude') userLongitude: number,
+        @Query('viewAllAvailablePharmacies') viewAllAvailablePharmacies: string,
+        @Res() res) {
+
+        console.log(viewAllAvailablePharmacies);
         
         const results = await this.medicineService.fetchAvailablePharmacies(medicineId)
-        if(results['pharmaciesFound'] && results['availablePharmacies']){
-            const allPharmacies = [...new Set(results['availablePharmacies'].split(','))]
-            const detailsOfAllPharmacies = []
-
-            if(allPharmacies){
-                await Promise.all(
-                    allPharmacies.map( async pharmacy=>{
-                    const userDetails = await this.userService.fetchUserDetails(pharmacy)
-                    detailsOfAllPharmacies.push(userDetails)
-                }))
-        
-                console.log(detailsOfAllPharmacies);
-
-                if(detailsOfAllPharmacies && detailsOfAllPharmacies.length>0){
-                    
-                    if(viewAllAvailablePharmacies.valueOf)
-                    {
-                       return res.status(HttpStatus.OK).send(BasicUtils.generateResponse(HttpStatus.OK, Constants.Messages.PHARMACIES_AVAILABLE, {pharmacies:detailsOfAllPharmacies}))
-                    }
-                }
-            }            
-            
+        if(results){
+            if (results['pharmaciesFound'] && results['availablePharmacies']) {
+                return this.generatePharmacyDetails(viewAllAvailablePharmacies, results['availablePharmacies'] as string, res)
+            }
+            else if(results['error']) return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send(BasicUtils.generateResponse(HttpStatus.INTERNAL_SERVER_ERROR, Constants.Messages.PHARMACIES_NOT_AVAILABLE, {error: results['error']}))
+            else if(results['pharmaciesFound'] === false) return res.status(HttpStatus.OK).send(BasicUtils.generateResponse(HttpStatus.OK, Constants.Messages.PHARMACIES_NOT_AVAILABLE))
         }
-
         return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send(BasicUtils.generateResponse())
+    }
+    
+    async generatePharmacyDetails(viewAllAvailablePharmacies: string, availablePharmacies: string, @Res() res) {
+        if (viewAllAvailablePharmacies == 'true') {
+            {
+                const allPharmacies = [...new Set(availablePharmacies.split(','))]
+                const detailsOfAllPharmacies = []
+
+                if (allPharmacies) {
+                    await Promise.all(
+                        allPharmacies.map(async pharmacy => {
+                            const userDetails = await this.userService.fetchUserDetails(pharmacy)
+                            if (userDetails) detailsOfAllPharmacies.push(userDetails)
+                        }))
+
+                    if (detailsOfAllPharmacies && detailsOfAllPharmacies.length > 0) return res.status(HttpStatus.OK).send(BasicUtils.generateResponse(HttpStatus.OK, Constants.Messages.PHARMACIES_AVAILABLE, { pharmacies: detailsOfAllPharmacies }))
+                }
+            }
+        }
     }
 
     @MessagePattern(Constants.RabbitMqConfig.MEDICINE_DATA_PATTERN)
@@ -108,7 +115,7 @@ export class MedicineController {
         const pharmacyId = data && data['pharmacyId'] ? data['pharmacyId'] : null
         const medicineData = data && data['medicineData'] ? data['medicineData'] : null
 
-        if(pharmacyId){
+        if (pharmacyId) {
             console.log("Parsing medicine data for " + pharmacyId);
             let medicineDtoList: MedicineDto[] = []
             if (medicineData && Array.isArray(medicineData) && medicineData.length != 0) {
@@ -128,8 +135,8 @@ export class MedicineController {
                 let isMedicinesUpdated = await this.medicineService.updateMedicinesInDb(medicineDtoList)
                 if (isMedicinesUpdated['medicinesUpdated']) {
                     console.log("Medicines updated successfully");
-                   // channel.ack(context.getMessage())
-                   // console.log("Ack sent");
+                    // channel.ack(context.getMessage())
+                    // console.log("Ack sent");
                 } else if (isMedicinesUpdated['error']) console.log("Medicines could not be updated due to " + isMedicinesUpdated['error']);
             }
         }
