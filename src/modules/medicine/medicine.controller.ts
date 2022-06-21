@@ -75,7 +75,9 @@ export class MedicineController {
         const results = await this.medicineService.fetchAvailablePharmacies(medicineId)
         if(results){
             if (results['pharmaciesFound'] && results['availablePharmacies']) {
-                return this.generatePharmacyDetails(viewAllAvailablePharmacies, results['availablePharmacies'] as string, res)
+                const detailsOfPharmacies = await this.generatePharmacyDetails(viewAllAvailablePharmacies, results['availablePharmacies'] as string, userLatitude, userLongitude)
+                if (detailsOfPharmacies && detailsOfPharmacies.length > 0) return res.status(HttpStatus.OK).send(BasicUtils.generateResponse(HttpStatus.OK, Constants.Messages.PHARMACIES_AVAILABLE, { pharmacies: detailsOfPharmacies }))
+
             }
             else if(results['error']) return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send(BasicUtils.generateResponse(HttpStatus.INTERNAL_SERVER_ERROR, Constants.Messages.PHARMACIES_NOT_AVAILABLE, {error: results['error']}))
             else if(results['pharmaciesFound'] === false) return res.status(HttpStatus.OK).send(BasicUtils.generateResponse(HttpStatus.OK, Constants.Messages.PHARMACIES_NOT_AVAILABLE))
@@ -83,10 +85,10 @@ export class MedicineController {
         return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send(BasicUtils.generateResponse())
     }
     
-    async generatePharmacyDetails(viewAllAvailablePharmacies: string, availablePharmacies: string, @Res() res) {
+    async generatePharmacyDetails(viewAllAvailablePharmacies: string, availablePharmacies: string, userLatitude:number, userLongitude:number) {
+        const allPharmacies = [...new Set(availablePharmacies.split(','))]
         if (viewAllAvailablePharmacies == 'true') {
             {
-                const allPharmacies = [...new Set(availablePharmacies.split(','))]
                 const detailsOfAllPharmacies = []
 
                 if (allPharmacies) {
@@ -95,10 +97,24 @@ export class MedicineController {
                             const userDetails = await this.userService.fetchUserDetails(pharmacy)
                             if (userDetails) detailsOfAllPharmacies.push(userDetails)
                         }))
-
-                    if (detailsOfAllPharmacies && detailsOfAllPharmacies.length > 0) return res.status(HttpStatus.OK).send(BasicUtils.generateResponse(HttpStatus.OK, Constants.Messages.PHARMACIES_AVAILABLE, { pharmacies: detailsOfAllPharmacies }))
+                }
+                return detailsOfAllPharmacies;
+            }
+        }
+        else{
+            const detailsOfNearbyPharmacies = []
+            const results = await this.locationService.reverseGeocodeForCity(userLatitude, userLongitude)
+            console.log("poko", JSON.stringify(results));
+            
+            if(results){
+                if(results['cityFound'] && results['city']){
+                    const userCity = results['city']
+                    console.log("sexy" + userCity);
+                    
                 }
             }
+            return detailsOfNearbyPharmacies;
+            
         }
     }
 
