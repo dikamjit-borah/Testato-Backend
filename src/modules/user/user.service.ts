@@ -34,4 +34,9 @@ export class UserService {
             }
         }
     }
+
+    async fetchUserDetailsByCity(userCity: any){
+        console.log("Fetching details of users in city "+ userCity);
+        
+    }
 }

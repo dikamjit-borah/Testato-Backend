@@ -1,8 +1,6 @@
-import { Controller, Get, HttpStatus, Param, Post, Query, Res, UseGuards } from '@nestjs/common';
-import { Ctx, MessagePattern, Payload, RmqContext } from '@nestjs/microservices';
-import { isEmpty } from 'class-validator';
+import { Controller, Get, HttpStatus, Query, Res } from '@nestjs/common';
+import { Ctx, MessagePattern, RmqContext } from '@nestjs/microservices';
 import { MedicineDto } from 'src/dto/MedicineDto';
-import { JwtGuardForAuth } from 'src/passport/jwt.guard';
 import { BasicUtils } from 'src/utils/BasicUtils';
 import { Constants } from 'src/utils/Constants';
 import { LocationService } from '../location/location.service';
@@ -75,9 +73,16 @@ export class MedicineController {
         const results = await this.medicineService.fetchAvailablePharmacies(medicineId)
         if(results){
             if (results['pharmaciesFound'] && results['availablePharmacies']) {
-                const detailsOfPharmacies = await this.generatePharmacyDetails(viewAllAvailablePharmacies, results['availablePharmacies'] as string, userLatitude, userLongitude)
-                if (detailsOfPharmacies && detailsOfPharmacies.length > 0) return res.status(HttpStatus.OK).send(BasicUtils.generateResponse(HttpStatus.OK, Constants.Messages.PHARMACIES_AVAILABLE, { pharmacies: detailsOfPharmacies }))
-
+                const detailsOfPharmacies = await this.generateDetailsOfPharmacies(viewAllAvailablePharmacies, results['availablePharmacies'] as string, userLatitude, userLongitude)
+                if (detailsOfPharmacies && detailsOfPharmacies.length > 0) {
+                    
+                    const detailsOfPharmaciesWithDistance = detailsOfPharmacies.map(pharmacy => {
+                        let results =  this.locationService.calculateDistance(userLatitude, userLongitude, pharmacy['latitude'], pharmacy['longitude'])
+                        return {...pharmacy, distance: results['distance'], unit: results['unit']}
+                    })
+                    return res.status(HttpStatus.OK).send(BasicUtils.generateResponse(HttpStatus.OK, Constants.Messages.PHARMACIES_AVAILABLE, { pharmacies: detailsOfPharmaciesWithDistance }))
+                }
+               
             }
             else if(results['error']) return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send(BasicUtils.generateResponse(HttpStatus.INTERNAL_SERVER_ERROR, Constants.Messages.PHARMACIES_NOT_AVAILABLE, {error: results['error']}))
             else if(results['pharmaciesFound'] === false) return res.status(HttpStatus.OK).send(BasicUtils.generateResponse(HttpStatus.OK, Constants.Messages.PHARMACIES_NOT_AVAILABLE))
@@ -85,7 +90,7 @@ export class MedicineController {
         return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send(BasicUtils.generateResponse())
     }
     
-    async generatePharmacyDetails(viewAllAvailablePharmacies: string, availablePharmacies: string, userLatitude:number, userLongitude:number) {
+    async generateDetailsOfPharmacies(viewAllAvailablePharmacies: string, availablePharmacies: string, userLatitude:number, userLongitude:number) {
         const allPharmacies = [...new Set(availablePharmacies.split(','))]
         if (viewAllAvailablePharmacies == 'true') {
             {
@@ -95,7 +100,11 @@ export class MedicineController {
                     await Promise.all(
                         allPharmacies.map(async pharmacy => {
                             const userDetails = await this.userService.fetchUserDetails(pharmacy)
-                            if (userDetails) detailsOfAllPharmacies.push(userDetails)
+                            if (userDetails) 
+                            {
+                                if(userDetails['detailsAvailable'] && userDetails['userDetails']) detailsOfAllPharmacies.push(userDetails['userDetails'])
+                                if(userDetails['error']) return 
+                            }
                         }))
                 }
                 return detailsOfAllPharmacies;
@@ -109,8 +118,8 @@ export class MedicineController {
             if(results){
                 if(results['cityFound'] && results['city']){
                     const userCity = results['city']
-                    console.log("sexy" + userCity);
-                    
+                    const userDetails = await this.userService.fetchUserDetailsByCity(userCity)
+                
                 }
             }
             return detailsOfNearbyPharmacies;
