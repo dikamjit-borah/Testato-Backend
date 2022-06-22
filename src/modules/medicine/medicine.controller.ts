@@ -19,14 +19,37 @@ export class MedicineController {
 
 
     // @UseGuards(JwtGuardForAuth)
-    /* @Get(':id')
-    async findMedicineById(@Query('id') id: number) {
+    @Get(':id')
+    async findMedicineById2(@Query('id') id: number) {
+
+        const medicineSEArr = [{
+            "key": "Paracitamol",
+            "phId": 2,
+            "city": "Guwahati",
+            objectID: 1
+            },
+            {
+                "key": "Nice",
+                "phId": 2,
+                "city": "Tinisukia",
+                objectID: 2
+            },
+            {
+                "key": "Paracitamol",
+                "phId": 3,
+                "city": "Tinisukia",
+                objectID: 3
+            }];
+
+        let isMedicinesUpdated2= await this.medicineService.updateMedicinesInSearchEngine(medicineSEArr, 2)
+
+        console.log(isMedicinesUpdated2)
        
         return {
             statusCode: 600,
             message: "all good"
         }
-    } */
+    } 
 
     @Get('search')
     async search(@Query('queryString') queryString: string, @Res() res) {
@@ -117,7 +140,8 @@ export class MedicineController {
 
         if (pharmacyId) {
             console.log("Parsing medicine data for " + pharmacyId);
-            let medicineDtoList: MedicineDto[] = []
+            let medicineDtoList: MedicineDto[] = [];
+            let medicineSEArr=[]
             if (medicineData && Array.isArray(medicineData) && medicineData.length != 0) {
                 for (let i = 0; i < medicineData.length; i++) {
                     let medicine = medicineData[i];
@@ -131,8 +155,16 @@ export class MedicineController {
                     medicineDto.medicinePackaging = medicine['Packaging']
                     medicineDto.availablePharmacies = pharmacyId
                     medicineDtoList.push(medicineDto)
+
+                    const medicineSEObj = {
+                        "key": medicine['Product Name'],
+                        "phId": pharmacyId,
+                        "city": "Guwahati"
+                    };
+                    medicineSEArr.push(medicineSEObj);
                 }
-                let isMedicinesUpdated = await this.medicineService.updateMedicinesInDb(medicineDtoList)
+                let isMedicinesUpdated = await this.medicineService.updateMedicinesInDb(medicineDtoList, pharmacyId)
+                let isMedicinesUpdated2= await this.medicineService.updateMedicinesInSearchEngine(medicineSEArr, pharmacyId)
                 if (isMedicinesUpdated['medicinesUpdated']) {
                     console.log("Medicines updated successfully");
                     // channel.ack(context.getMessage())

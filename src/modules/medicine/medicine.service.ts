@@ -5,6 +5,8 @@ import { MedicineDto } from 'src/dto/MedicineDto';
 import { MedicineEntity } from 'src/db/entities/medicine.entity';
 import { MedicineDetailsEntity } from 'src/db/entities/medicineDetails.entity';
 import { EntityManager, getConnection, Repository } from 'typeorm';
+import algoliasearch from 'algoliasearch';
+const client = algoliasearch("KX2ICK21L8","6e76cfeb0238960bbd52e17491fd72b7")
 
 @Injectable()
 export class MedicineService {
@@ -89,7 +91,7 @@ export class MedicineService {
 
     }
 
-    async updateMedicinesInDb(medicineDtoList: MedicineDto[]) {
+    async updateMedicinesInDb(medicineDtoList: MedicineDto[], pharmacyId) {
         let medicinesUpdated = false
         const queryRunner = await getConnection().createQueryRunner();
 
@@ -114,6 +116,29 @@ export class MedicineService {
 
         } catch (error) {
             return { medicinesUpdated, error }
+        }
+    }
+
+    async updateMedicinesInSearchEngine(medArr: any, pharmacyId){
+        try{
+            const index = await client.initIndex("med");
+            //console.log(index)
+           // await index.saveObjects(medArr)
+            
+            // index.search('para', {
+            //     filters: 'city:Guwahati'
+            // }).then(({ hits }) => {
+            //     console.log(hits);
+            // }).catch(err=> console.log(err));
+
+            index.deleteBy({
+                filters: 'phId=2'
+              }).then(() => {
+                // done
+                console.log("done")
+             });
+        }catch(err){
+            console.log(err,"errrerere")
         }
     }
 }
