@@ -1,13 +1,33 @@
-import { isNotEmpty, IsNotEmpty } from "class-validator"
+import { IsLatitude, IsLongitude, IsNotEmpty, IsNumber } from "class-validator"
 
 export class SignUpDto{
     @IsNotEmpty()
+    @IsNumber()
     phoneNumber:number
 
     @IsNotEmpty()
     password:string
 
-    //clientType 
+    @IsNotEmpty()
+    userName:String
 
-    //if pharmacy, location, name, 
+    @IsNotEmpty()
+    userType:String
+
+    @IsNotEmpty()
+    @IsLatitude()
+    latitude:number
+
+    @IsNotEmpty()
+    @IsLongitude()
+    longitude:number
+
+    @IsNotEmpty()
+    address:String
+
+    @IsNotEmpty()
+    city:String
+
+    @IsNotEmpty()
+    state:String
 }

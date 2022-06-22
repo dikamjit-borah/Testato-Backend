@@ -1,4 +1,6 @@
+import { HttpStatus } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
+import { Constants } from './Constants';
 export class BasicUtils{
     static requiredParametersCheck(requestObj, parametersArray) {
 
@@ -47,5 +49,19 @@ export class BasicUtils{
             simpleObject[prop] = object[prop];
         }
         return JSON.stringify(simpleObject); // returns cleaned up JSON
+    }
+
+    static generateResponse(statusCode?: any, message?: string, fields?: {}){
+        let response = {
+            statusCode:HttpStatus.INTERNAL_SERVER_ERROR,
+            message: Constants.Messages.SOMETHING_WENT_WRONG,
+        }
+        if(statusCode) response.statusCode = statusCode
+        if(message) response.message = message
+        if(fields)
+        {
+            response['data'] = fields
+        }
+        return response
     }
 }
