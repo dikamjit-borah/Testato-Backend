@@ -16,33 +16,18 @@ export class AuthController {
     @UsePipes(ValidationPipe)
     @Post('/signUp')
     async signUp(@Body() signUpDto: SignUpDto, @Res() res) {
-        let responseData = {
-            statusCode:HttpStatus.INTERNAL_SERVER_ERROR,
-            message: Constants.Messages.SOMETHING_WENT_WRONG,
-        }
-        console.log(signUpDto);
-
+        
         let isUserCreated = await this.authService.createUser(signUpDto)
-        if (isUserCreated && isUserCreated['userCreated']) {
-            responseData.statusCode = HttpStatus.OK
-            responseData.message = Constants.Messages.USER_CREATED
-            return res
-                .status(HttpStatus.OK)
-                .send(responseData)
+
+        if (isUserCreated) {
+            if (isUserCreated['userCreated']) return res.status(HttpStatus.OK).send(BasicUtils.generateResponse(HttpStatus.OK, Constants.Messages.USER_CREATED))
+            else if (isUserCreated['userExists']) return res.status(HttpStatus.OK).send(BasicUtils.generateResponse(HttpStatus.OK, Constants.Messages.USER_EXISTS))
+            else if (isUserCreated['error']) return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send(BasicUtils.generateResponse(HttpStatus.INTERNAL_SERVER_ERROR, Constants.Messages.USER_NOT_CREATED, { error: isUserCreated['error'] }))
+
         }
-        else {
-            if (isUserCreated && isUserCreated['error']) {
-                responseData.statusCode = HttpStatus.INTERNAL_SERVER_ERROR
-                responseData.message = isUserCreated['error']
-                return res
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .send(responseData)
-            }
-            return res
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .send(responseData)
-        }
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send(BasicUtils.generateResponse())
     }
+
 
     @UsePipes(ValidationPipe)
     @Post('/signIn')
