@@ -9,5 +9,5 @@ export class MedicineDto{
     medicineComposition: string
     medicinePackingType: string
     medicinePackaging: string
-    availablePharmacies: string
+    pharmacy_id: string
 }

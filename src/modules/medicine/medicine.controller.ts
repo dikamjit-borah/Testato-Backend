@@ -22,11 +22,12 @@ export class MedicineController {
     @Get(':id')
     async findMedicineById2(@Query('id') id: number) {
 
-        const medicineSEArr = [{
-            "key": "Paracitamol",
-            "phId": 2,
-            "city": "Guwahati",
-            objectID: 1
+        const medicineSEArr = [
+            {
+                "key": "Paracitamol",
+                "phId": 2,
+                "city": "Guwahati",
+                objectID: 1
             },
             {
                 "key": "Nice",
@@ -54,10 +55,11 @@ export class MedicineController {
     @Get('search')
     async search(@Query('queryString') queryString: string, @Res() res) {
         console.log("Search initiated for " + queryString);
-        let results = await this.medicineService.searchForMedicineInDb(queryString)
+        let results = await this.medicineService.searchForMedicine(queryString)
         if (results) {
-            if (results['medicineFound'] && results['medicines']) {
-                if (results['medicines'].length > 0) return res.status(HttpStatus.OK).send(BasicUtils.generateResponse(HttpStatus.OK, Constants.Messages.MEDICINES_FOUND, { results: results['medicines'] }))
+            if (results['medicineFound'] && results['MedicineSet']) {
+                if (results['MedicineSet'].length > 0) 
+                    return res.status(HttpStatus.OK).send(BasicUtils.generateResponse(HttpStatus.OK, Constants.Messages.MEDICINES_FOUND, { results: results['MedicineSet'] }))
                 return res.status(HttpStatus.OK).send(BasicUtils.generateResponse(HttpStatus.OK, Constants.Messages.MEDICINES_NOT_FOUND))
             }
             if (results['error'])
@@ -68,10 +70,10 @@ export class MedicineController {
     }
 
     @Get('find')
-    async findMedicineById(@Query('medicineId') medicineId: string, @Res() res) {
-        console.log("Fetching details for " + medicineId);
+    async findMedicineByName(@Query('medicineName') medicineName: string, @Query('city') city: string, @Query('longitude') longitude: string,@Query('latitude') latitude: string,@Res() res) {
+        console.log("Fetching details for " + medicineName);
 
-        const data = await this.medicineService.fetchMedicineDetails(medicineId)
+        const data = await this.medicineService.fetchMedicineDetails(medicineName, city, longitude, latitude)
 
         if (data) {
             if (data['detailsAvailable'] && data['medicineDetails']) {
@@ -142,6 +144,8 @@ export class MedicineController {
             console.log("Parsing medicine data for " + pharmacyId);
             let medicineDtoList: MedicineDto[] = [];
             let medicineSEArr=[]
+            //Get pharmacy detail for city fetching
+
             if (medicineData && Array.isArray(medicineData) && medicineData.length != 0) {
                 for (let i = 0; i < medicineData.length; i++) {
                     let medicine = medicineData[i];
@@ -153,10 +157,11 @@ export class MedicineController {
                     medicineDto.medicineManufacturer = medicine['Manufacturer']
                     medicineDto.medicinePackingType = medicine['Packing Type']
                     medicineDto.medicinePackaging = medicine['Packaging']
-                    medicineDto.availablePharmacies = pharmacyId
+                    medicineDto.pharmacy_id = pharmacyId
                     medicineDtoList.push(medicineDto)
 
                     const medicineSEObj = {
+                        "objectID": medicine['Product ID']+pharmacyId,
                         "key": medicine['Product Name'],
                         "phId": pharmacyId,
                         "city": "Guwahati"
@@ -164,7 +169,7 @@ export class MedicineController {
                     medicineSEArr.push(medicineSEObj);
                 }
                 let isMedicinesUpdated = await this.medicineService.updateMedicinesInDb(medicineDtoList, pharmacyId)
-                let isMedicinesUpdated2= await this.medicineService.updateMedicinesInSearchEngine(medicineSEArr, pharmacyId)
+                await this.medicineService.updateMedicinesInSearchEngine(medicineSEArr, pharmacyId)
                 if (isMedicinesUpdated['medicinesUpdated']) {
                     console.log("Medicines updated successfully");
                     // channel.ack(context.getMessage())

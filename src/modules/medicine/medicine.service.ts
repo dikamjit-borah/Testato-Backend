@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { map } from 'rxjs';
+import { async, map } from 'rxjs';
 import { MedicineDto } from 'src/dto/MedicineDto';
 import { MedicineEntity } from 'src/db/entities/medicine.entity';
 import { MedicineDetailsEntity } from 'src/db/entities/medicineDetails.entity';
@@ -16,20 +16,53 @@ export class MedicineService {
         @InjectRepository(MedicineDetailsEntity) private medicineDetailsRepo: Repository<MedicineDetailsEntity>
     ) { }
 
-    async fetchMedicineDetails(medicineId: any) {
+    async fetchMedicineDetails(medicineName: any, city: any, longitude:any, latitude:any) {
         let detailsAvailable = false
         try {
-            const medicineDetails = await this.medicineDetailsRepo.findOneBy({
-                medicineId
+            const index = await client.initIndex("med");
+
+            const searchResults = await index.search(medicineName,{
+                filters:`city:${city}`
+            });
+
+            let pharmacyIds= new Set();
+            searchResults.hits.forEach(pharmacy=>{
+                const stringifyResult = JSON.stringify(pharmacy)
+                pharmacyIds.add(JSON.parse(stringifyResult).phId)
             })
 
-            if (medicineDetails) {
+
+            let pharmacyData = await this.medicineRepo.find({});
+            let finalPharmaciesData=[]
+
+            finalPharmaciesData = pharmacyData.map(async pharmacy=>{
+                const pharmacyObj={}
+                let distance = 0;
+                // distance calculation based on given longi and lati
+                const medicineDetails = await this.medicineDetailsRepo.findOneBy({ })
+                return {
+                    ...pharmacy,
+                    distance,
+                    medicineDetails
+                }
+            })
+
+
+            if (finalPharmaciesData.length) {
                 detailsAvailable = true
                 return ({
                     detailsAvailable,
-                    medicineDetails
+                    finalPharmaciesData
                 })
             }
+
+
+
+            // const medicineDetails = await this.medicineDetailsRepo.findOneBy({
+            //     medicineId
+            // })
+
+            
 
             return ({
                 detailsAvailable
@@ -70,16 +103,26 @@ export class MedicineService {
         }
     }
 
-    async searchForMedicineInDb(queryString: string) {
-        let medicineFound = false
+    async searchForMedicine(queryString: string) {
+        let medicineFound = false;
+        const index = await client.initIndex("med");
+        const MedicineSet = new Set()
         try {
-            const query = `SELECT medicine_id, medicine_name from medicine_entity WHERE medicine_name LIKE "%${queryString}%"`
-            let medicines = await this.medicineRepo.query(query)
+            const searchResults = await index.search(queryString);
             medicineFound = true
+            searchResults.hits.forEach(element => {
+                const stringifyResult = JSON.stringify(element)
+                MedicineSet.add(JSON.parse(stringifyResult).key);
+            });
             return {
-                medicineFound,
-                medicines
+                uniqueMedicineNames: Array.from(MedicineSet),
+                medicineFound
             }
+
+
+            // const query = `SELECT medicine_id, medicine_name from medicine_entity WHERE medicine_name LIKE "%${queryString}%"`
+            // let medicines = await this.medicineRepo.query(query)
+            
 
         } catch (error) {
             console.log(error);
@@ -96,20 +139,38 @@ export class MedicineService {
         const queryRunner = await getConnection().createQueryRunner();
 
         try {
-
+            const medicineIds = [], medicineEntityArr=[], medicineDetailEntityArr = [];
             for (let index = 0; index < medicineDtoList.length; index++) {
                 const item = medicineDtoList[index];
-                await queryRunner.manager.query(`CALL SP_UPDATE_MEDICINE_DATA (?, ?, ?, ?, ?, ?, ?, ?);`,
-                    [
-                        item.medicineId,
-                        item.medicineName,
-                        item.availablePharmacies,
-                        item.medicineMrp,
-                        item.medicineManufacturer,
-                        item.medicineComposition,
-                        item.medicinePackingType,
-                        item.medicinePackaging])
+                medicineIds.push(item.medicineId)
+                medicineEntityArr.push({medicine_id: item.medicineId, medicine_name: item.medicineName, pharmacy_id: pharmacyId})
+                medicineEntityArr.push({
+                                        medicine_id: item.medicineId, 
+                                        medicine_name: item.medicineName, 
+                                        medicine_mrp: item.medicineMrp,
+                                        medicine_manufacturer: item.medicineManufacturer,
+                                        medicine_composition: item.medicineComposition,
+                                        medicine_packing_type: item.medicinePackingType,
+                                        medicine_packaging: item.medicinePackaging 
+                                    })
             }
+
+            await queryRunner.manager.query("Delete From Medicine where medicine_id In (?)",[medicineIds])
+            await queryRunner.manager.query("Delete From MedicineDetail where medicine_id In (?)",[medicineIds])
+
+            this.medicineRepo.createQueryBuilder()
+            .insert()
+            .into(MedicineEntity)
+            .values(medicineEntityArr)
+            .execute();
+
+            this.medicineDetailsRepo.createQueryBuilder()
+            .insert()
+            .into(MedicineDetailsEntity)
+            .values(medicineDetailEntityArr)
+            .execute();
+
+
 
             medicinesUpdated = true
             return { medicinesUpdated }
@@ -122,21 +183,22 @@ export class MedicineService {
     async updateMedicinesInSearchEngine(medArr: any, pharmacyId){
         try{
             const index = await client.initIndex("med");
-            //console.log(index)
-           // await index.saveObjects(medArr)
-            
-            // index.search('para', {
-            //     filters: 'city:Guwahati'
-            // }).then(({ hits }) => {
-            //     console.log(hits);
-            // }).catch(err=> console.log(err));
 
-            index.deleteBy({
-                filters: 'phId=2'
-              }).then(() => {
-                // done
-                console.log("done")
-             });
+            // index.deleteBy({
+            //     filters: `phId=${pharmacyId}`
+            //   })
+            //   .then(async() => {
+            //     await index.saveObjects(medArr)
+            //  })
+            //   .catch(err=>console.log(err)); 
+
+            const data = await index.search('para',{
+                filters:'city:fsdafa'
+            });
+            const final = JSON.stringify(data.hits[0])
+            console.log(JSON.parse(final).key)
+
+            
         }catch(err){
             console.log(err,"errrerere")
         }
