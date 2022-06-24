@@ -6,7 +6,6 @@ import { Repository } from 'typeorm';
 @Injectable()
 export class UserService {
 
-
     constructor(@InjectRepository(UserDetailsEntity) private userDetailsRepo: Repository<UserDetailsEntity>){
 
     }
@@ -32,6 +31,22 @@ export class UserService {
                 detailsAvailable,
                 error
             }
+        }
+    }
+
+    async fetchUserCity(pharmacyId: any) {
+        try {
+            const userCity = await this.userDetailsRepo.findOne({
+                select:[
+                    'city'
+                ],
+                where:{
+                    phoneNumber:pharmacyId
+                }
+            })
+            return userCity.city
+        } catch (error) {
+            return error
         }
     }
 

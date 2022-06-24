@@ -7,6 +7,8 @@ import { MedicineDetailsEntity } from 'src/db/entities/medicineDetails.entity';
 import { UserDetailsEntity } from 'src/db/entities/userDetails.entity';
 import { Constants } from 'src/utils/Constants';
 import { LocationService } from '../location/location.service';
+import { SearchModule } from '../search/search.module';
+import { SearchService } from '../search/search.service';
 import { UserService } from '../user/user.service';
 import { MedicineController } from './medicine.controller';
 import { MedicineService } from './medicine.service';
@@ -14,6 +16,7 @@ import { MedicineService } from './medicine.service';
 @Module({
   imports: [
     HttpModule,
+    SearchModule,
     TypeOrmModule.forFeature([MedicineEntity, MedicineDetailsEntity, UserDetailsEntity]),
     ClientsModule.register([{
       name: 'FETCH_MEDICINE_DATA',
@@ -30,6 +33,11 @@ import { MedicineService } from './medicine.service';
     ])
   ],
   controllers: [MedicineController],
-  providers: [MedicineService, UserService, LocationService]
+  providers: [
+    MedicineService, 
+    UserService, 
+    LocationService,
+    SearchService
+  ]
 })
 export class MedicineModule { }

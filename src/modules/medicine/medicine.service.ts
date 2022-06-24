@@ -68,7 +68,7 @@ export class MedicineService {
         }
     }
 
-    async searchForMedicineInDb(queryString: string) {
+    async searchMedicineInDb(queryString: string) {
         let medicineFound = false
         try {
             const query = `SELECT medicine_id, medicine_name from medicine_entity WHERE medicine_name LIKE "%${queryString}%"`

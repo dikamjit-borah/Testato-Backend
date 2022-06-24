@@ -12,6 +12,7 @@ import { UserModule } from './modules/user/user.module';
 import { JwtStrategyForAuth } from './passport/jwt.strategy';
 import { LocationModule } from './modules/location/location.module';
 import { HttpModule } from '@nestjs/axios';
+import { SearchModule } from './modules/search/search.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot(typeormConfig),
@@ -20,7 +21,8 @@ import { HttpModule } from '@nestjs/axios';
     AuthModule, 
     MedicineModule, 
     UserModule,
-    LocationModule
+    LocationModule,
+    SearchModule
   ],
   controllers: [AppController],
   providers: [AppService, JwtStrategyForAuth],
