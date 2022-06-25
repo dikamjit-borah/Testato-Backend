@@ -13,13 +13,18 @@ export class LocationService {
 
     async reverseGeocodeForCity(latitude: number, longitude: number) {
 
-        const results = await this.fetchCityName(latitude, longitude)
-        return results
+        try {
+            const results = await this.fetchCityName(latitude, longitude)
+            return results
+        } catch (error) {
+            return ''
+        }
     }
 
     async fetchCityName(latitude: number, longitude: number){
 
         const url = `https://nominatim.openstreetmap.org/reverse?format=xml&lat=${latitude}&lon=${longitude}`
+        console.log(`Fetching city name from ${url}`);
         const responseDataInXml = await firstValueFrom(
             this.httpService.get(url).pipe(map((response) => [response.data, response.status])),
         );

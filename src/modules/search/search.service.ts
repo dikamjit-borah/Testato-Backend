@@ -34,28 +34,34 @@ export class SearchService {
         
     }
 
-    async searchMedicineInSe(queryString: string, viewAllAvailablePharmacies?: any, city?: string)
+    async searchMedicineInSe(queryString: string, viewAllAvailablePharmacies?: boolean, city?: string)
     {
-        viewAllAvailablePharmacies = viewAllAvailablePharmacies === 'true' ? true : false
         let searched = false;
         console.log(`Searching for ${queryString} in Algolia`);
         const index = client.initIndex('medicinePharmacySearchIndex')
         try {
-            const results = await index.search(queryString, {filters: viewAllAvailablePharmacies ? '' : `city:${city}`})
-            const hits = results['hits'].map(({_highlightResult, ...rest})=>{
-                return rest
-            })
-            
-            const pharmacies = hits.map(hit=>{
-                return hit['pharmacyId']
-            })
+            const results = await index.search(queryString, !viewAllAvailablePharmacies ? {filters: `city:${city}`} : null)
 
-            searched = true
+            if(results){
+                const hits = results['hits'].map(({_highlightResult, ...rest})=>{
+                    return rest
+                })
+                
+                const pharmacies = [...new Set(hits.map(hit=>{
+                    return hit['pharmacyId']
+                }))]
+    
+                searched = true
+                return {
+                    searched,
+                    hits, 
+                    pharmacies
+                }
+            }
             return {
                 searched,
-                hits, 
-                pharmacies
             }
+            
         } catch (error) {
             return {
                 searched,

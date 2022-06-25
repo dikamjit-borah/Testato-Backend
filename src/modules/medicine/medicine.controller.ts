@@ -48,9 +48,14 @@ export class MedicineController {
     }
 
     @Get('algolia/search')
-    async algoliaSearch(@Query('queryString') queryString: string, @Res() res) {
+    async algoliaSearch(@Query('queryString') queryString: string, @Query('viewAllAvailablePharmacies') viewAllAvailablePharmacies: any, @Res() res) {
         console.log("Search initiated for " + queryString);
+
+        viewAllAvailablePharmacies = viewAllAvailablePharmacies === 'true' ? true : false
+
         let results = await this.searchService.searchMedicineInSe(queryString)
+        console.log(results);
+        
         if (results) {
             if (results['searched'] && results['hits']) {
                 if (results['hits'].length > 0) return res.status(HttpStatus.OK).send(BasicUtils.generateResponse(HttpStatus.OK, Constants.Messages.MEDICINES_FOUND, { results: results['hits'] }))
@@ -116,18 +121,23 @@ export class MedicineController {
         @Query('medicineName') medicineName: string,
         @Query('userLatitude') userLatitude: number,
         @Query('userLongitude') userLongitude: number,
-        @Query('viewAllAvailablePharmacies') viewAllAvailablePharmacies: string,
+        @Query('viewAllAvailablePharmacies') viewAllAvailablePharmacies: any,
         @Res() res) {
 
         console.log("Finding available pharmacies for "+ medicineName);
-        const results = await this.locationService.reverseGeocodeForCity(userLatitude, userLongitude)
+        
+        viewAllAvailablePharmacies = viewAllAvailablePharmacies === 'true' ? true : false
         let city = ''
-        !(results && results['city']) ? viewAllAvailablePharmacies = 'true': city = results['city']
-            
+        
+        if(!viewAllAvailablePharmacies && userLatitude && userLongitude){
+            const results = await this.locationService.reverseGeocodeForCity(userLatitude, userLongitude)
+            if (results && results['city']) city = results['city']
+        }else viewAllAvailablePharmacies = true
+       
         const searchResults = await this.searchService.searchMedicineInSe(medicineName, viewAllAvailablePharmacies, city)
         
         if(searchResults){
-            if (searchResults['pharmacies']) {
+            if (searchResults['searched'] && searchResults['pharmacies'] && searchResults['pharmacies'].length>0) {
                 const detailsOfPharmacies = await this.fetchDetailsOfPharmacies(searchResults['pharmacies'])
                 if(detailsOfPharmacies){
                     const pharmacyDetails = detailsOfPharmacies['pharmacyDetails']
@@ -141,6 +151,10 @@ export class MedicineController {
                     return res.status(HttpStatus.OK).send(BasicUtils.generateResponse(HttpStatus.OK, Constants.Messages.PHARMACIES_AVAILABLE, { pharmacies: detailsOfPharmaciesWithDistance }))
                 }
                 else if(searchResults['error']) return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send(BasicUtils.generateResponse(HttpStatus.INTERNAL_SERVER_ERROR, Constants.Messages.PHARMACIES_NOT_AVAILABLE, {error: searchResults['error']}))
+            }
+
+            if(!searchResults['searched']){
+                return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send(BasicUtils.generateResponse(HttpStatus.INTERNAL_SERVER_ERROR, Constants.Messages.PHARMACIES_NOT_AVAILABLE))                
             }
         }
         return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send(BasicUtils.generateResponse())
