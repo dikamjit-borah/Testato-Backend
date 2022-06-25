@@ -260,8 +260,8 @@ export class MedicineController {
                     // console.log("Ack sent");
                 } else if (isMedicinesUpdatedInSe['error']) console.log("Medicines could not be in updated in search engine due to " + isMedicinesUpdatedInSe['error']);
 
-                //channel.ack(context.getMessage())
-                //console.log("Ack sent");
+                channel.ack(context.getMessage())
+                console.log("Ack sent");
             }
         }
     }

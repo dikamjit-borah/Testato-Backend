@@ -47,7 +47,7 @@ export class AuthController {
                 const access_token = await this.loginUser(signInDto)
                 responseData.statusCode = HttpStatus.OK
                 responseData.message = Constants.Messages.LOGIN_SUCCESS
-                responseData['access_token'] = access_token
+                responseData['accessToken'] = access_token
                 return res
                     .status(HttpStatus.OK)
                     .send(responseData)

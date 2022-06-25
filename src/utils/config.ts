@@ -1,6 +1,6 @@
-export const config = {
+const config = {
     algolia:{
-        searchIndex:'medicinePharmacySearchIndex'
-    }
-    
+        searchIndex:'medicinePharmacySearchIndex'}
 } 
+
+export {config}
