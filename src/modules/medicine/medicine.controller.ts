@@ -48,10 +48,8 @@ export class MedicineController {
     }
 
     @Get('algolia/search')
-    async algoliaSearch(@Query('queryString') queryString: string, @Query('viewAllAvailablePharmacies') viewAllAvailablePharmacies: any, @Res() res) {
+    async algoliaSearch(@Query('queryString') queryString: string, @Res() res) {
         console.log("Search initiated for " + queryString);
-
-        viewAllAvailablePharmacies = viewAllAvailablePharmacies === 'true' ? true : false
 
         let results = await this.searchService.searchMedicineInSe(queryString)
         console.log(results);
