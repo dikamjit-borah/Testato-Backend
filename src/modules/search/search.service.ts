@@ -56,12 +56,30 @@ export class SearchService {
                 const pharmacies = [...new Set(hits.map(hit=>{
                     return hit['pharmacyId']
                 }))]
+
+                const allSearchItems = [...new Set((hits.map(hit=>{
+                    return {
+                        medicineId:hit['medicineId'],
+                        medicineName:hit['medicineName']
+                    }
+                })))]
+
+                const filteredSearchItems =  [
+                    ...new Map(allSearchItems.map(obj => [`'medicineId':${obj['medicineId']}, 'medicineName':${obj['medicineName']}`, obj]))
+                    .values()
+                  ];
+
+                /* let searchResults = {}
+                medicineNames.forEach(medicineName=>{
+                    searchResults['medicineName'] = medicineName
+                    searchResults[]
+                }) */
     
                 searched = true
                 return {
                     searched,
-                    hits, 
-                    pharmacies
+                    hits:filteredSearchItems, 
+                    pharmacies,
                 }
             }
             return {
