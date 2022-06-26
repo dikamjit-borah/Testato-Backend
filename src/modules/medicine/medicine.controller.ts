@@ -129,7 +129,8 @@ export class MedicineController {
         
         if(!viewAllAvailablePharmacies && userLatitude && userLongitude){
             const results = await this.locationService.reverseGeocodeForCity(userLatitude, userLongitude)
-            if (results && results['city']) city = results['city']
+            console.log("City" + results);
+            city = results ? results : ''
         }else viewAllAvailablePharmacies = true
        
         const searchResults = await this.searchService.searchMedicineInSe(medicineName, viewAllAvailablePharmacies, city)

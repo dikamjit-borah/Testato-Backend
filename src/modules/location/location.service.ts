@@ -23,13 +23,26 @@ export class LocationService {
 
     async fetchCityName(latitude: number, longitude: number){
 
-        const url = `https://nominatim.openstreetmap.org/reverse?format=xml&lat=${latitude}&lon=${longitude}`
+        //const url = `https://nominatim.openstreetmap.org/reverse?format=xml&lat=${latitude}&lon=${longitude}`
+
+        const url  = `https://apis.mapmyindia.com/advancedmaps/v1/${process.env.MMI_API_KEY}/rev_geocode?lat=${latitude}&lng=${longitude}&region=IND`
         console.log(`Fetching city name from ${url}`);
-        const responseDataInXml = await firstValueFrom(
+        /* const responseDataInXml = await firstValueFrom(
+            this.httpService.get(url).pipe(map((response) => [response.data, response.status])),
+        ); */
+
+        const responseData = await firstValueFrom(
             this.httpService.get(url).pipe(map((response) => [response.data, response.status])),
         );
 
-        return new Promise((resolve, reject)=>{
+        console.log(JSON.stringify(responseData));
+        console.log(responseData[0]['results'][0]['city']);
+        
+        
+
+        return responseData[0]['results'][0]['city']
+
+       /*  return new Promise((resolve, reject)=>{
             xml2js.parseString(responseDataInXml, (err, result) => {
                 let cityFound = false
                 if (err) {
@@ -39,7 +52,7 @@ export class LocationService {
                     })
                 }
                 try {
-                    const city = result['reversegeocode']['addressparts'][0]['city'][0];
+                    let city = result['reversegeocode']['addressparts'][0]['city'][0];
                     cityFound = true
                     resolve( {
                         cityFound,
@@ -53,7 +66,7 @@ export class LocationService {
                     })
                 }
             });
-        })
+        }) */
     }
 
     calculateDistance(latitude1: number, longitude1: number, latitude2: number, longitude2: number) {
