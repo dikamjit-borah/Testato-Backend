@@ -1,4 +1,4 @@
-import { HttpStatus } from '@nestjs/common';
+import { HttpStatus, Res } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { Constants } from './Constants';
 export class BasicUtils{
@@ -63,5 +63,22 @@ export class BasicUtils{
             response['data'] = fields
         }
         return response
+    }
+
+    static generateAndSendResponse(@Res() res, statusCode?: any, message?: string, fields?: {}){
+        console.log("Generating response");
+        let response = {
+            statusCode:HttpStatus.INTERNAL_SERVER_ERROR,
+            message: Constants.Messages.SOMETHING_WENT_WRONG,
+        }
+        if(statusCode) response.statusCode = statusCode
+        if(message) response.message = message
+        if(fields)
+        {
+            response['data'] = fields
+        }
+        console.log("######Response sent######");
+        
+        return res.status(statusCode).send(response)
     }
 }

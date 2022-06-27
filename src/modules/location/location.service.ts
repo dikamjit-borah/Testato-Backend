@@ -70,18 +70,18 @@ export class LocationService {
     }
 
     calculateDistance(latitude1: number, longitude1: number, latitude2: number, longitude2: number) {
-        var R = 6371; // Radius of the earth in km
-        var dLat = this.deg2rad(latitude2-latitude1);  // deg2rad below
-        var dLon = this.deg2rad(longitude2-longitude1); 
-        var a = 
+        let R = 6371; // Radius of the earth in km
+        let dLat = this.deg2rad(latitude2-latitude1);  // deg2rad below
+        let dLon = this.deg2rad(longitude2-longitude1); 
+        let a = 
           Math.sin(dLat/2) * Math.sin(dLat/2) +
           Math.cos(this.deg2rad(latitude1)) * Math.cos(this.deg2rad(latitude2)) * 
           Math.sin(dLon/2) * Math.sin(dLon/2)
           ; 
-        var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
-        var distance = R * c; // Distance in km
-
-        return {distance, unit:"km"};
+        let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+        let distance = R * c; // Distance in km
+         
+        return {distance: distance.toFixed(), unit:"km"};
 
     }
 
