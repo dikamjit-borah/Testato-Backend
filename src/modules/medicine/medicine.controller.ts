@@ -238,7 +238,7 @@ export class MedicineController {
                     let medicinePharmacySearchItem = {}
 
 
-                    medicineDto.medicineId = medicine['Product ID']
+                    medicineDto.medicineId = medicine['Product ID'] + pharmacyId
                     medicinePharmacySearchItem['medicineId'] = medicineDto.medicineId
 
                     medicineDto.medicineName = medicine['Product Name']
@@ -266,7 +266,7 @@ export class MedicineController {
                     console.log("Medicines updated in database successfully");
                 } else if (isMedicinesUpdatedInDb['error']) console.log("Medicines could not be in database updated due to " + isMedicinesUpdatedInDb['error']);
 
-                let isMedicinesUpdatedInSe = await this.searchService.updateMedicinesInSe(medicinePharmacySearchList)
+                let isMedicinesUpdatedInSe = await this.searchService.updateMedicinesInSe(medicinePharmacySearchList,pharmacyId)
                 if (isMedicinesUpdatedInSe['medicinesUpdated']) {
                     console.log("Medicines updated in search engine successfully");
                     // channel.ack(context.getMessage())

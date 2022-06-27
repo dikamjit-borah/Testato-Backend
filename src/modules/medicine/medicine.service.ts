@@ -92,23 +92,23 @@ export class MedicineService {
     async updateMedicinesInDb(medicineDtoList: MedicineDto[]) {
         let medicinesUpdated = false
         const queryRunner = await getConnection().createQueryRunner();
+        const deleteQueries =[], insertQueries=[]
 
         try {
 
             for (let index = 0; index < medicineDtoList.length; index++) {
                 const item = medicineDtoList[index];
-                await queryRunner.manager.query(`CALL SP_UPDATE_MEDICINE_DATA (?, ?, ?, ?, ?, ?, ?, ?);`,
-                    [
-                        item.medicineId,
-                        item.medicineName,
-                        item.availablePharmacies,
-                        item.medicineMrp,
-                        item.medicineManufacturer,
-                        item.medicineComposition,
-                        item.medicinePackingType,
-                        item.medicinePackaging])
+                deleteQueries.push(`Delete From medicine_entity where available_pharmacies = '${item.availablePharmacies}'`)
+                deleteQueries.push(`Delete From medicine_details_entity where medicine_id = '${item.medicineId}'`)
             }
+            await Promise.all(deleteQueries.map(query=>queryRunner.manager.query(query)))
 
+            for (let index = 0; index < medicineDtoList.length; index++) {
+                const item = medicineDtoList[index];
+                insertQueries.push(`Insert Into  medicine_entity (medicine_id, medicine_name, available_pharmacies) Values("${item.medicineId}","${item.medicineName}","${item.availablePharmacies}")`)
+                insertQueries.push(`Insert Into  medicine_details_entity (medicine_id, medicine_name, medicine_mrp, medicine_manufacturer, medicine_composition, medicine_packing_type, medicine_packaging) Values("${item.medicineId}","${item.medicineName}","${item.medicineMrp}","${item.medicineManufacturer}","${item.medicineComposition}","${item.medicinePackingType}","${item.medicinePackaging}")`)
+            }
+            await Promise.all(insertQueries.map(query=>queryRunner.manager.query(query)))
             medicinesUpdated = true
             return { medicinesUpdated }
 

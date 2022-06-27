@@ -12,12 +12,17 @@ export class SearchService {
     constructor(){
     }
 
-    async updateMedicinesInSe(records: Array<any>){
+    async updateMedicinesInSe(records: Array<any>, pharmacyId: String){
 
         let medicinesUpdated:boolean = false
         try {
             if(records && records.length>0){
             const index = client.initIndex(config.algolia.searchIndex)
+
+            await index.deleteBy({
+                     filters: `pharmacyId=${pharmacyId}`
+                   })
+
             await index.saveObjects(records);
             index
             medicinesUpdated = true
@@ -42,7 +47,7 @@ export class SearchService {
         
         
         console.log(`Searching for ${queryString} in Algolia`);
-        const index = client.initIndex('medicinePharmacySearchIndex')
+        const index = client.initIndex(config.algolia.searchIndex)
         try {
             const results = await index.search(queryString, !viewAllAvailablePharmacies && city ? {filters: `city:${city}`} : null)
 
