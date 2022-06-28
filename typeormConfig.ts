@@ -9,7 +9,7 @@ const typeormConfig : TypeOrmModuleOptions ={
   password: "",
   database: process.env.DB_NAME,
   synchronize: process.env.NODE_ENV === "development"? true:false,
-  logging:true,
+  logging: true,
 
   //entities: [__dirname + '/../**/*.entity.{js,ts}'],
   entities: [__dirname + '/../**/*.entity.js'],
