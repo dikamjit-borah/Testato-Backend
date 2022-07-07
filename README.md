@@ -1,1 +1,2 @@
-Backend application to process medicine data received from the [Testato-Erp](https://github.com/dikamjit-borah/Testato-Erp) microservice.
+Backend application to receive and process medicine data from the [Testato-Erp](https://github.com/dikamjit-borah/Testato-Erp) microservice and send serve as server for the android application [Testato-Android](https://github.com/dikamjit-borah/Testato-Android).
+ 
